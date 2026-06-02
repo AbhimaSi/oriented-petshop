@@ -1,16 +1,14 @@
-public class Animal {
+package com.mycompany.javapet.model;
 
+public class Animal {
     private String id;
     private String nome;
     private String especie;
     private String raca;
     private String idCliente;
-
-    // Construtor vazio
-    public Animal() {
-    }
-
-    // Construtor completo
+    
+    public Animal() {}
+    
     public Animal(String id, String nome, String especie, String raca, String idCliente) {
         this.id = id;
         this.nome = nome;
@@ -18,8 +16,7 @@ public class Animal {
         this.raca = raca;
         this.idCliente = idCliente;
     }
-
-    // Getters e Setters
+    
     public String getId() {
         return id;
     }

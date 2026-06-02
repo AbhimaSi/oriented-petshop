@@ -1,27 +1,24 @@
+package com.mycompany.javapet.model;
+
 import java.util.List;
 
 public class Cliente {
-
     private String id;
     private String nome;
     private int telefone;
     private String endereco;
-    private List<Animal> pets;
-
-    // Construtor vazio
-    public Cliente() {
-    }
-
-    // Construtor completo
-    public Cliente(String id, String nome, int telefone, String endereco, List<Animal> pets) {
+    private List<Animal> animais;
+    
+    public Cliente() { }
+    
+    public Cliente(String id, String nome, int telefone, String endereco, List<Animal> animais) {
         this.id = id;
         this.nome = nome;
         this.telefone = telefone;
         this.endereco = endereco;
-        this.pets = pets;
+        this.animais = animais;
     }
-
-    // Getters e Setters
+    
     public String getId() {
         return id;
     }
@@ -54,11 +51,11 @@ public class Cliente {
         this.endereco = endereco;
     }
 
-    public List<Animal> getPets() {
-        return pets;
+    public List<Animal> getAnimais() {
+        return animais;
     }
 
-    public void setPets(List<Animal> pets) {
-        this.pets = pets;
+    public void setAnimais(List<Animal> animais) {
+        this.animais = animais;
     }
 }

@@ -1,27 +1,30 @@
-public class Atendimento {
+package com.mycompany.javapet.model;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+
+public class Atendimento {
     private String id;
-    private int data;
-    private int hora;
+    private LocalDate data;
+    private LocalTime hora;
     private String status;
     private String idPet;
     private int idFuncionario;
-
-    // Construtor vazio
-    public Atendimento() {
-    }
-
-    // Construtor completo
-    public Atendimento(String id, int data, int hora, String status, String idPet, int idFuncionario) {
+    private List<Servico> servicos;
+    
+    public Atendimento() { }
+    
+    public Atendimento(String id, LocalDate data, LocalTime hora, String status, String idPet, int idFuncionario, List<Servico> servicos) {
         this.id = id;
         this.data = data;
         this.hora = hora;
         this.status = status;
         this.idPet = idPet;
         this.idFuncionario = idFuncionario;
+        this.servicos = servicos;
     }
-
-    // Getters e Setters
+    
     public String getId() {
         return id;
     }
@@ -30,19 +33,19 @@ public class Atendimento {
         this.id = id;
     }
 
-    public int getData() {
+    public LocalDate getData() {
         return data;
     }
 
-    public void setData(int data) {
+    public void setData(LocalDate data) {
         this.data = data;
     }
 
-    public int getHora() {
+    public LocalTime getHora() {
         return hora;
     }
 
-    public void setHora(int hora) {
+    public void setHora(LocalTime hora) {
         this.hora = hora;
     }
 
@@ -68,5 +71,13 @@ public class Atendimento {
 
     public void setIdFuncionario(int idFuncionario) {
         this.idFuncionario = idFuncionario;
+    }
+    
+    public List<Servico> getServicos() {
+        return servicos;
+    }
+    
+    public void setServicos(List<Servico> servicos) {
+        this.servicos = servicos;
     }
 }

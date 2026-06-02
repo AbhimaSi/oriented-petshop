@@ -1,21 +1,18 @@
-public class Funcionario {
+package com.mycompany.javapet.model;
 
+public class Funcionario {
     private String id;
     private String nome;
     private String cargo;
 
-    // Construtor vazio
-    public Funcionario() {
-    }
-
-    // Construtor completo
+    public Funcionario() { }
+    
     public Funcionario(String id, String nome, String cargo) {
         this.id = id;
         this.nome = nome;
         this.cargo = cargo;
     }
 
-    // Getters e Setters
     public String getId() {
         return id;
     }
