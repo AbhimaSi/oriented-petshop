@@ -10,7 +10,7 @@ public class DBConnection {
     private static DBConnection jdbcunique = null;
     private static Connection connection = null;
     private static String path = System.getProperty("user.dir");
-    private static File config = new File(path + "/src/jdbc.config");
+    private static File config = new File(path + "/jdbc.config");
     
     private DBConnection(){}
     
