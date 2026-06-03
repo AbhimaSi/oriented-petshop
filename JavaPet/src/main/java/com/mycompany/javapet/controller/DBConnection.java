@@ -1,34 +1,37 @@
-package controller;
+package com.mycompany.javapet.controller;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    private static DBConnection jdbcunique = null;
     private static Connection connection = null;
-    private static String path = System.getProperty("user.dir");
-    private static File config = new File(path + "/jdbc.config");
+    private static final String path = System.getProperty("user.dir");
+    private static final File config = new File(path + "/.env");
     
-    private DBConnection(){}
+    public DBConnection(){};
     
-    public static DBConnection getInstance(){
-        if(jdbcunique != null){
-            return jdbcunique;
+    public static Connection getConnection(){
+        if(connection != null){
+            return connection;
         }
         else{
-            jdbcunique = new DBConnection();
-            return jdbcunique;
+            return null;
         }
     }
     
-    public boolean criarConexao(){
+    public static boolean criarConexao(){
         try{
             JDBCUtil.init(config);
-            connection = JDBCUtil.getConnection();
+            String url = JDBCUtil.getUrl();
+            String username = JDBCUtil.getUsername();
+            String password = JDBCUtil.getPassword();
+            connection = DriverManager.getConnection(url, username, password);
             connection.setAutoCommit(false);
+            return true;
         }
         catch(FileNotFoundException err){
             System.err.println("Arquivo não encontrado: "+err.getMessage());
@@ -45,7 +48,7 @@ public class DBConnection {
         return false;
     }
     
-    public boolean fecharConexao(){
+    public static boolean fecharConexao(){
         try{
             if(connection != null){
                 connection.close();

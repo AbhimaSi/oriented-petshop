@@ -1,11 +1,9 @@
-package controller;
+package com.mycompany.javapet.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -37,8 +35,14 @@ public class JDBCUtil{
         }
     }
     
-    public static Connection getConnection() throws SQLException{
-        return DriverManager.getConnection(url, username, password);
+    public static String getUrl(){
+        return url;
+    }
+    public static String getUsername(){
+        return username;
+    }
+    public static String getPassword(){
+        return password;
     }
     
     public static boolean hasElements(ResultSet rsdados){
