@@ -52,6 +52,7 @@ public class DBConnection {
         try{
             if(connection != null){
                 connection.close();
+                connection = null;
                 return true;
             }
         }
