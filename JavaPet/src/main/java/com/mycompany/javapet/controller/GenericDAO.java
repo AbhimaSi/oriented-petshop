@@ -135,7 +135,6 @@ public abstract class GenericDAO <T>{
         Method[] metodos = entidade.getDeclaredMethods();
         try{
             for(int i = 0; i < campos.length; i++){
-                System.out.println(campos[i]);
                 Method getter = ClassUtil.encontrarGetterDeCampo(metodos, campos[i]);
                 statement.setObject(i+1, getter.invoke(objeto));
             }
