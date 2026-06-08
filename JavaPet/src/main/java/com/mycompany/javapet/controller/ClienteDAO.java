@@ -5,30 +5,24 @@ import java.util.ArrayList;
 
 public class ClienteDAO extends GenericDAO<Cliente> {
 
+    public ClienteDAO(){
+        super(Cliente.class);
+    }
+    
     @Override
     public String getNomeTabela() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "cliente";
     }
 
     @Override
     public String getSqlInserir() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return  "INSERT INTO "+getNomeTabela()+" (nome, telefone, endereco) VALUES (?, ?, ?)";
     }
 
-    @Override
-    public String getSqlAtualizar() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean inserir(Cliente objeto) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean atualizar(Cliente objeto) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+//    @Override
+//    public String getSqlAtualizar() {
+//        return "UPDATE "+getNomeTabela()+" SET nome = ?, telefone = ?, endereco = ? WHERE id = ?";
+//    }
 
     @Override
     public ArrayList<Cliente> retornarLista() {
