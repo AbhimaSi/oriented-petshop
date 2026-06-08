@@ -19,8 +19,11 @@ public class DBConnection {
             return connection;
         }
         else{
-            return null;
+            if(criarConexao()){
+                return connection;
+            }
         }
+        return null;
     }
     
     public static boolean criarConexao(){
