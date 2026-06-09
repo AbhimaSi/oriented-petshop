@@ -97,15 +97,29 @@ public abstract class GenericDAO <T>{
             return false;
         }
         catch(SQLException err){
-            System.err.println("Erro ao tentar inserir: "+err.getMessage());
+            System.err.println("Erro ao tentar realizar insercao: "+err.getMessage());
         }
         return false;
     }
     
     public boolean atualizar(T objeto){
-        System.out.println(getSqlAtualizar());
-        
-        return true;
+        String sqlAtualizar = getSqlAtualizar();
+        try{
+            statement = this.connection.prepareStatement(sqlAtualizar);
+            definirParamsDeStatement(statement, sqlAtualizar, objeto);
+
+            int updated = statement.executeUpdate();
+            if(updated == 1){
+                this.connection.commit();
+                return true;
+            }
+            this.connection.rollback();
+            return false;
+        }
+        catch(SQLException err){
+            System.err.println("Erro ao tentar realizar atualizacao: "+err.getMessage());
+        }
+        return false;
     }
     
     public boolean remover(int id){
@@ -130,28 +144,49 @@ public abstract class GenericDAO <T>{
     public abstract ArrayList<T> retornarLista();
     public abstract T retornarSelecionado();
     
+    // define os parametros de um statement de insert
     private PreparedStatement definirParamsDeStatement(PreparedStatement statement, String sql, T objeto){
-        String[] campos = extrairAtributosDeInsert(sql);
-        Method[] metodos = entidade.getDeclaredMethods();
-        try{
-            for(int i = 0; i < campos.length; i++){
-                Method getter = ClassUtil.encontrarGetterDeCampo(metodos, campos[i]);
-                statement.setObject(i+1, getter.invoke(objeto));
+        String operacao = sql.split(" ")[0];
+        String[] campos = null;
+        if(operacao.equalsIgnoreCase("INSERT")){
+            campos = extrairAtributosDeInsert(sql);
+        }
+        else if(operacao.equalsIgnoreCase("UPDATE")){
+            campos = extrairAtributosDeUpdate(sql);
+        }
+        
+        if(campos != null){
+            try{
+                Method[] metodos = entidade.getDeclaredMethods();
+                for(int i = 0; i < campos.length; i++){
+                    Method getter = ClassUtil.encontrarGetterDeCampo(metodos, campos[i]);
+                    Object valor = getter.invoke(objeto);
+                    
+                    // parsear id para int se necessário
+                    if(campos[i].equalsIgnoreCase("id") && valor.getClass().getSimpleName().equalsIgnoreCase("String")){
+                        valor = Integer.parseInt((String)valor);
+                    }
+                    
+                    statement.setObject(i+1, valor);
+                }
+                return statement;
             }
-            return statement;
+            
+            catch(SQLException err){
+                System.err.println("Erro ao acessar parametros de statement: "+err.getMessage());
+            }
+            catch(InvocationTargetException err){
+                System.err.println("Erro ao tentar chamar metodo em "+objeto.getClass().toString()+": "+err.getMessage());
+            }
+            catch(IllegalAccessException err){
+                System.err.println("Erro ao tentar acessar metodo em "+objeto.getClass().toString()+": "+err.getMessage());
+            }
         }
-        catch(SQLException err){
-            System.err.println("Erro ao acessar parametros de statement: "+err.getMessage());
-        }
-        catch(InvocationTargetException err){
-            System.err.println("Erro ao tentar chamar metodo em "+objeto.getClass().toString()+": "+err.getMessage());
-        }
-        catch(IllegalAccessException err){
-            System.err.println("Erro ao tentar acessar metodo em "+objeto.getClass().toString()+": "+err.getMessage());
-        }
+
         return null;
     }
     
+    // extrai o nome dos atributos de uma string sql para insercao
     private String[] extrairAtributosDeInsert(String sql){
         int inicio = sql.indexOf('(')+1;
         int fim = sql.indexOf(')');
@@ -162,6 +197,7 @@ public abstract class GenericDAO <T>{
         return atributos;
     }
     
+    // converte os atributos de uma classe entidade para uma string sql para insercao
     private String entidadeParaInsert(){
         String[] listaAtributos = ClassUtil.getNomesDeAtributos(entidade);
         
@@ -176,8 +212,6 @@ public abstract class GenericDAO <T>{
                 qtdAtributos++;
             }
         }
-        
-        Method[] listaMetodos = entidade.getDeclaredMethods();
         StringBuilder valores = new StringBuilder();
         for(int i = 0; i < qtdAtributos; i++){
             valores.append("? ");
@@ -197,6 +231,21 @@ public abstract class GenericDAO <T>{
         return sql.toString();
     }
     
+    // extrai o nome dos atributos de uma string sql para atualizacao
+    private String[] extrairAtributosDeUpdate(String sql){
+        String[] arr = sql.split(" ");
+        ArrayList<String> atributosList = new ArrayList<>();
+        for(int i = 0; i < arr.length; i++){
+            if(arr[i].contains("?")){
+                atributosList.add(arr[i-2]);
+            }
+        }
+        String[] atributos = atributosList.toArray(new String[0]);
+
+        return atributos;
+    }
+    
+    // extrai o nome dos atributos de uma string sql para atualizacao
     private String entidadeParaUpdate(){
         String[] listaAtributos = ClassUtil.getNomesDeAtributos(entidade);
         StringBuilder atributos = new StringBuilder();
@@ -215,7 +264,7 @@ public abstract class GenericDAO <T>{
         StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(entidade.getSimpleName())
                 .append(" SET ")
-                .append(atributos.toString())
+                .append(atributos)
                 .append("WHERE id = ?");
         
         return sql.toString();
