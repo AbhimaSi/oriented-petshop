@@ -14,11 +14,11 @@ public class ClienteDAO extends GenericDAO<Cliente> {
         return "cliente";
     }
 
-    @Override
-    public String getSqlInserir() {
-        return  "INSERT INTO "+getNomeTabela()+" (nome, telefone, endereco) VALUES (?, ?, ?)";
-    }
-
+//    @Override
+//    public String getSqlInserir() {
+//        return  "INSERT INTO "+getNomeTabela()+" (nome, telefone, endereco) VALUES (?, ?, ?)";
+//    }
+//
 //    @Override
 //    public String getSqlAtualizar() {
 //        return "UPDATE "+getNomeTabela()+" SET nome = ?, telefone = ?, endereco = ? WHERE id = ?";
