@@ -167,7 +167,7 @@ public abstract class GenericDAO <T>{
                         valor = Integer.parseInt((String)valor);
                     }
                     
-                    statement.setObject(i+1, valor);
+              statement.setObject(i+1, valor);
                 }
                 return statement;
             }
@@ -245,7 +245,7 @@ public abstract class GenericDAO <T>{
         return atributos;
     }
     
-    // extrai o nome dos atributos de uma string sql para atualizacao
+    // converte os atributos de uma classe entidade para uma string update
     private String entidadeParaUpdate(){
         String[] listaAtributos = ClassUtil.getNomesDeAtributos(entidade);
         StringBuilder atributos = new StringBuilder();
@@ -281,6 +281,10 @@ public abstract class GenericDAO <T>{
             }
         }
         return false;
+    }
+    
+    public ResultSet getResultSet(){
+        return resultSet;
     }
     
     public boolean fecharConnection(){
