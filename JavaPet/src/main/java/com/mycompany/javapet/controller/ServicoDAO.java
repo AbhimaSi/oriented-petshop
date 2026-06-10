@@ -5,29 +5,23 @@ import java.util.ArrayList;
 
 public class ServicoDAO extends GenericDAO<Servico> {
 
+    public ServicoDAO(){
+        super(Servico.class);
+    }
+    
     @Override
     public String getNomeTabela() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "servico";
     }
 
     @Override
     public String getSqlInserir() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "INSERT INTO "+getNomeTabela()+" (nome, preco, duracao) VALUES (?, ?, ?)";
     }
 
     @Override
     public String getSqlAtualizar() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean inserir(Servico objeto) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean atualizar(Servico objeto) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "UPDATE "+getNomeTabela()+" SET nome = ?, preco = ?, duracao = ? WHERE id = ?";
     }
 
     @Override

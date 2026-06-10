@@ -5,29 +5,23 @@ import java.util.ArrayList;
 
 public class AnimalDAO extends GenericDAO<Animal> {
 
+    public AnimalDAO(){
+        super(Animal.class);
+    }
+    
     @Override
     public String getNomeTabela() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "animal";
     }
 
     @Override
     public String getSqlInserir() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "INSERT INTO "+getNomeTabela()+" (idcliente, nome, especie, raca) VALUES (?, ?, ?, ?)";
     }
 
     @Override
     public String getSqlAtualizar() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean inserir(Animal objeto) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public boolean atualizar(Animal objeto) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "UPDATE "+getNomeTabela()+" SET idcliente = ?, nome = ?, especie = ?, raca = ? WHERE id = ?";
     }
 
     @Override
