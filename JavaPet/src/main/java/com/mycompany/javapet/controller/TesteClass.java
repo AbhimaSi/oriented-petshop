@@ -14,7 +14,8 @@ import java.util.ArrayList;
 
 public class TesteClass {
     public static void main(String arg[]){
-        testarListaClientes(true);
+        testarTudo(true);
+        //testarFuncionario(true);
         
     }
 
@@ -52,7 +53,7 @@ public class TesteClass {
         System.out.println("\nCliente atualizado: ");
         printCliente(c1);
         
-        if(dao.remover(c1.getId())){
+        if(dao.remover(c1)){
             System.out.println("\nCliente removido.");
         }
         else{
@@ -131,7 +132,7 @@ public class TesteClass {
         System.out.println("\nAnimal atualizado: ");
         printAnimal(a1);
         
-        if(dao.remover(a1.getId())){
+        if(dao.remover(a1)){
             System.out.println("\nAnimal removido.");
         }
         else{
@@ -146,6 +147,8 @@ public class TesteClass {
         }
         Funcionario f1 = new Funcionario();
         f1.setNome("nome");
+        f1.setEmail("email@javapet.com");
+        f1.setSenha("1234");
         f1.setCargo("veterinario");
         
         FuncionarioDAO dao = new FuncionarioDAO();
@@ -157,15 +160,18 @@ public class TesteClass {
         System.out.println("\nFuncionario inserido: ");
         printFuncionario(f1);
         
-        f1.setNome("novo nome");
+        f1.setId(0); // definir 0 para testar busca por uuid
+        f1.setNome("richard");
+        f1.setEmail("richrd@javapet.com");
+        f1.setSenha("SenhaMuitoComplexa123Zebra");
         dao.atualizar(f1);
-        dao.buscarPorId(f1.getId());
+        dao.buscarPorEmail(f1.getEmail());
         JDBCUtil.movPrimeiro(dao.getResultSet());
         f1 = dao.retornarSelecionado();
         System.out.println("\nFuncionario atualizado: ");
         printFuncionario(f1);
         
-        if(dao.remover(f1.getId())){
+        if(dao.remover(f1)){
             System.out.println("\nFuncionario removido.");
         }
         else{
@@ -199,7 +205,7 @@ public class TesteClass {
         System.out.println("\nAtendimento atualizado: ");
         printAtendimento(a1);
         
-        if(dao.remover(a1.getId())){
+        if(dao.remover(a1)){
             System.out.println("\nAtendimento removido.");
         }
         else{
@@ -231,7 +237,7 @@ public class TesteClass {
         System.out.println("\nServico atualizado: ");
         printServico(s1);
         
-        if(dao.remover(s1.getId())){
+        if(dao.remover(s1)){
             System.out.println("\nServico removido.");
         }
         else{
@@ -258,6 +264,8 @@ public class TesteClass {
         System.out.println("........id: "+f.getId());
         System.out.println("......uuid: "+f.getUuid());
         System.out.println("......nome: "+f.getNome());
+        System.out.println(".....email: "+f.getEmail());
+        System.out.println(".....senha: "+f.getSenha());
         System.out.println(".....cargo: "+f.getCargo());
     }
     public static void printAtendimento(Atendimento a){
