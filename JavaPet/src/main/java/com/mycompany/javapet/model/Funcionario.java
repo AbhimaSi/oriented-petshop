@@ -1,17 +1,21 @@
 package com.mycompany.javapet.model;
 
-public class Funcionario {
+public class Funcionario implements Tabela {
     private int id;
     private String uuid;
     private String nome;
-    private String cargo;
+    private String email;
+    private String senha;
+    private String cargo;    
 
     public Funcionario() { }
     
-    public Funcionario(int id, String uuid, String nome, String cargo) {
+    public Funcionario(int id, String uuid, String nome, String email, String senha, String cargo) {
         this.id = id;
         this.uuid = uuid;
         this.nome = nome;
+        this.email = email;
+        this.senha = senha;
         this.cargo = cargo;
     }
 
@@ -37,6 +41,22 @@ public class Funcionario {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public String getCargo() {

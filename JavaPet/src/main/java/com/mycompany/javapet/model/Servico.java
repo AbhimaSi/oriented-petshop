@@ -1,6 +1,6 @@
 package com.mycompany.javapet.model;
 
-public class Servico {
+public class Servico implements Tabela{
     private int id;
     private String uuid;
     private String nome;

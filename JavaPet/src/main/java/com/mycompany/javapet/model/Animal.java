@@ -1,6 +1,6 @@
 package com.mycompany.javapet.model;
 
-public class Animal {
+public class Animal implements Tabela {
     private int id;
     private String uuid;
     private String nome;

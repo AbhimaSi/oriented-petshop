@@ -2,7 +2,7 @@ package com.mycompany.javapet.model;
 
 import java.util.List;
 
-public class Cliente {
+public class Cliente implements Tabela {
     private int id;
     private String uuid;
     private String nome;

@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-public class Atendimento {
+public class Atendimento implements Tabela {
     private int id;
     private String uuid;
     private LocalDate data;
