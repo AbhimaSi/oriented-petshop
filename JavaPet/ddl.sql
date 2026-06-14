@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS funcionario (
 	id SERIAL UNIQUE,
 	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	nome VARCHAR(50),
+	email VARCHAR(25) UNIQUE NOT NULL,
+	senha VARCHAR(50) NOT NULL,
 	cargo VARCHAR(50),
 	PRIMARY KEY(id, uuid)
 );
@@ -29,8 +31,8 @@ CREATE TABLE IF NOT EXISTS funcionario (
 CREATE TABLE IF NOT EXISTS atendimento (
 	id SERIAL UNIQUE,
 	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
-	data_atendimento DATE DEFAULT CURRENT_DATE,
-	hora_atendimento TIME DEFAULT CURRENT_TIME,
+	data DATE DEFAULT CURRENT_DATE,
+	hora TIME DEFAULT CURRENT_TIME,
 	status VARCHAR(30),
 	PRIMARY KEY(id, uuid)
 );

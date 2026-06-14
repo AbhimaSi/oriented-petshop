@@ -11,10 +11,10 @@ INSERT INTO animal (idcliente, nome, especie, raca) VALUES (3, 'Ghost', 'Cachorr
 INSERT INTO animal (nome, especie, raca) VALUES ('Neguinho', 'Cachorro', 'Salsicha');
 
 
-INSERT INTO funcionario (nome, cargo) VALUES ('Alisson', 'Veterinário');
-INSERT INTO funcionario (nome, cargo) VALUES ('Richard', 'Veterinário');
-INSERT INTO funcionario (nome, cargo) VALUES ('Ronaldo', 'Afazeres gerais');
-INSERT INTO funcionario (nome, cargo) VALUES ('Samuel', 'Atendente');
+INSERT INTO funcionario (nome, cargo, email, senha) VALUES ('Alisson', 'Veterinário', 'alisson@javapet.com', '1234');
+INSERT INTO funcionario (nome, cargo, email, senha) VALUES ('Richard', 'Veterinário', 'rick@javapet.com', '1234');
+INSERT INTO funcionario (nome, cargo, email, senha) VALUES ('Ronaldo', 'Afazeres gerais', 'ronaldinho@outlook.com', '1234');
+INSERT INTO funcionario (nome, cargo, email, senha) VALUES ('Samuel', 'Atendente', 'samu@javapet.com', '1234');
 
 
 INSERT INTO atendimento (data_atendimento, hora_atendimento, status) VALUES ('2026-06-01', '20:30:00','EM ANDAMENTO');
