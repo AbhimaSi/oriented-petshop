@@ -1,44 +1,56 @@
 CREATE TABLE IF NOT EXISTS cliente (
-	id SERIAL UNIQUE PRIMARY KEY,
+	id SERIAL UNIQUE,
+	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	nome VARCHAR(50) NOT NULL,
 	telefone VARCHAR(20),
-	endereco VARCHAR(50)
+	endereco VARCHAR(50),
+	PRIMARY KEY(id, uuid)
 );
 
 CREATE TABLE IF NOT EXISTS animal (
-	id SERIAL UNIQUE PRIMARY KEY,
+	id SERIAL UNIQUE,
+	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	idcliente INT,
 	nome VARCHAR(50),
 	especie VARCHAR(30),
 	raca VARCHAR(30) DEFAULT 'Vira-lata',
-	FOREIGN KEY (idcliente) REFERENCES cliente (id)
+	FOREIGN KEY (idcliente) REFERENCES cliente (id),
+	PRIMARY KEY(id, uuid)
 );
 
 CREATE TABLE IF NOT EXISTS funcionario (
-	id SERIAL UNIQUE PRIMARY KEY,
+	id SERIAL UNIQUE,
+	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	nome VARCHAR(50),
-	cargo VARCHAR(50)
+	cargo VARCHAR(50),
+	PRIMARY KEY(id, uuid)
 );
 
 CREATE TABLE IF NOT EXISTS atendimento (
-	id SERIAL UNIQUE PRIMARY KEY,
+	id SERIAL UNIQUE,
+	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	data_atendimento DATE DEFAULT CURRENT_DATE,
 	hora_atendimento TIME DEFAULT CURRENT_TIME,
-	status VARCHAR(30)
+	status VARCHAR(30),
+	PRIMARY KEY(id, uuid)
 );
 
 
 CREATE TABLE IF NOT EXISTS produto (
-	id SERIAL UNIQUE PRIMARY KEY,
+	id SERIAL UNIQUE,
+	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	nome VARCHAR(30),
-	preco DECIMAL(5,2)
+	preco DECIMAL(5,2),
+	PRIMARY KEY(id, uuid)
 );
 
 CREATE TABLE IF NOT EXISTS servico (
-	id SERIAL UNIQUE PRIMARY KEY,
+	id SERIAL UNIQUE,
+	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	nome VARCHAR(30),
 	preco DECIMAL(5,2),
-	duracao INT
+	duracao INT,
+	PRIMARY KEY(id, uuid)
 );
 
 CREATE TABLE IF NOT EXISTS animal_atendimento (
