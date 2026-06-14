@@ -1,4 +1,4 @@
-DROP TABLE
+DROP TABLE IF EXISTS
 		produto_atendimento,
 		animal_atendimento,
 		servico,
