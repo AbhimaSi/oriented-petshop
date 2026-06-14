@@ -2,7 +2,6 @@ package com.mycompany.javapet.controller;
 
 import com.mycompany.javapet.model.Atendimento;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class AtendimentoDAO extends GenericDAO<Atendimento> {
 
@@ -21,8 +20,13 @@ public class AtendimentoDAO extends GenericDAO<Atendimento> {
     }
 
     @Override
-    public String getSqlAtualizar() {
+    public String getSqlAtualizarPorId() {
         return "UPDATE "+getNomeTabela()+" SET data = ?, hora = ?, status = ? WHERE id = ?";
+    }
+    
+    @Override
+    public String getSqlAtualizarPorUuid() {
+        return "UPDATE "+getNomeTabela()+" SET data = ?, hora = ?, status = ? WHERE uuid = ?";
     }
 
     @Override
