@@ -5,7 +5,8 @@ import java.time.LocalTime;
 import java.util.List;
 
 public class Atendimento {
-    private String id;
+    private int id;
+    private String uuid;
     private LocalDate data;
     private LocalTime hora;
     private String status;
@@ -15,8 +16,9 @@ public class Atendimento {
     
     public Atendimento() { }
     
-    public Atendimento(String id, LocalDate data, LocalTime hora, String status, String idPet, int idFuncionario, List<Servico> servicos) {
+    public Atendimento(int id, String uuid, LocalDate data, LocalTime hora, String status, String idPet, int idFuncionario, List<Servico> servicos) {
         this.id = id;
+        this.uuid = uuid;
         this.data = data;
         this.hora = hora;
         this.status = status;
@@ -25,14 +27,22 @@ public class Atendimento {
         this.servicos = servicos;
     }
     
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
+    public String getUuid() { 
+        return uuid; 
+    }
+    
+    public void setUuid(String uuid) { 
+        this.uuid = uuid;
+    }
+    
     public LocalDate getData() {
         return data;
     }

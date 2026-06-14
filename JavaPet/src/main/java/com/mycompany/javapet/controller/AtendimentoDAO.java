@@ -1,6 +1,7 @@
 package com.mycompany.javapet.controller;
 
 import com.mycompany.javapet.model.Atendimento;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class AtendimentoDAO extends GenericDAO<Atendimento> {
@@ -16,22 +17,53 @@ public class AtendimentoDAO extends GenericDAO<Atendimento> {
 
     @Override
     public String getSqlInserir() {
-        return "INSERT INTO "+getNomeTabela()+" (data_atendimento, hora_atendimento, status) VALUES (?, ?, ?)";
+        return "INSERT INTO "+getNomeTabela()+" (data, hora, status) VALUES (?, ?, ?)";
     }
 
     @Override
     public String getSqlAtualizar() {
-        return "UPDATE "+getNomeTabela()+" SET data_atendimento = ?, hora_atendimento = ?, status = ? WHERE id = ?";
-    }
-
-    @Override
-    public ArrayList<Atendimento> retornarLista() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "UPDATE "+getNomeTabela()+" SET data = ?, hora = ?, status = ? WHERE id = ?";
     }
 
     @Override
     public Atendimento retornarSelecionado() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            Atendimento atendimento = null;
+            if (resultSet != null) {
+                atendimento = new Atendimento();
+                atendimento.setUuid(resultSet.getString("uuid"));
+                atendimento.setId(resultSet.getInt("id"));
+                atendimento.setData(resultSet.getDate("data").toLocalDate());
+                atendimento.setHora(resultSet.getTime("hora").toLocalTime());
+                atendimento.setStatus(resultSet.getString("status"));
+                // falta de campos na tabela
+                // alterar consulta p incluir atributos?
+                /*
+                    ##BANCO DE DADOS##
+
+                    CREATE TABLE IF NOT EXISTS atendimento (
+                            id SERIAL UNIQUE PRIMARY KEY,
+                            data_atendimento DATE DEFAULT CURRENT_DATE,
+                            hora_atendimento TIME DEFAULT CURRENT_TIME,
+                            status VARCHAR(30)
+                    );
+
+                
+                    ##CLASSE ENTIDADE##
+
+                    private String id;
+                    private LocalDate data;
+                    private LocalTime hora;
+                    private String status;
+                    private String idPet;
+                    private int idFuncionario;
+                    private List<Servico> servicos;
+                */
+            }
+            return atendimento;
+        } catch (SQLException err) {
+            System.out.println("Erro ao acessar statement: " + err.getMessage());
+        }
+        return null;
     }
-    
 }

@@ -1,30 +1,40 @@
 package com.mycompany.javapet.model;
 
 public class Animal {
-    private String id;
+    private int id;
+    private String uuid;
     private String nome;
     private String especie;
     private String raca;
-    private String idCliente;
+    private int idCliente;
     
     public Animal() {}
     
-    public Animal(String id, String nome, String especie, String raca, String idCliente) {
+    public Animal(int id, String uuid, String nome, String especie, String raca, int idCliente) {
         this.id = id;
+        this.uuid = uuid;
         this.nome = nome;
         this.especie = especie;
         this.raca = raca;
         this.idCliente = idCliente;
     }
     
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
+    public String getUuid() { 
+        return uuid; 
+    }
+    
+    public void setUuid(String uuid) { 
+        this.uuid = uuid;
+    }
+    
     public String getNome() {
         return nome;
     }
@@ -49,11 +59,11 @@ public class Animal {
         this.raca = raca;
     }
 
-    public String getIdCliente() {
+    public int getIdCliente() {
         return idCliente;
     }
 
-    public void setIdCliente(String idCliente) {
+    public void setIdCliente(int idCliente) {
         this.idCliente = idCliente;
     }
 }

@@ -26,17 +26,13 @@ public class ClienteDAO extends GenericDAO<Cliente> {
     }
 
     @Override
-    public ArrayList<Cliente> retornarLista() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public Cliente retornarSelecionado() {
         try{
             Cliente cliente = null;
             if(resultSet != null){
                 cliente = new Cliente();
-                cliente.setId(String.valueOf(resultSet.getInt("id")));
+                cliente.setId(resultSet.getInt("id"));
+                cliente.setUuid(resultSet.getString("uuid"));
                 cliente.setNome(resultSet.getString("nome"));
                 cliente.setTelefone(resultSet.getInt("telefone"));
                 cliente.setEndereco(resultSet.getString("endereco"));

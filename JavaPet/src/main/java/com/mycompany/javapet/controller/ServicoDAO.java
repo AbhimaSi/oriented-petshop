@@ -1,7 +1,8 @@
 package com.mycompany.javapet.controller;
 
+import static com.mycompany.javapet.controller.GenericDAO.resultSet;
 import com.mycompany.javapet.model.Servico;
-import java.util.ArrayList;
+import java.sql.SQLException;
 
 public class ServicoDAO extends GenericDAO<Servico> {
 
@@ -16,22 +17,52 @@ public class ServicoDAO extends GenericDAO<Servico> {
 
     @Override
     public String getSqlInserir() {
-        return "INSERT INTO "+getNomeTabela()+" (nome, preco, duracao) VALUES (?, ?, ?)";
+        return "INSERT INTO "+getNomeTabela()+" (nome) VALUES (?)";
+        //return "INSERT INTO "+getNomeTabela()+" (nome, preco, duracao) VALUES (?, ?, ?)";
     }
 
     @Override
     public String getSqlAtualizar() {
-        return "UPDATE "+getNomeTabela()+" SET nome = ?, preco = ?, duracao = ? WHERE id = ?";
-    }
-
-    @Override
-    public ArrayList<Servico> retornarLista() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return "UPDATE "+getNomeTabela()+" SET nome = ? WHERE id = ?";
+        //return "UPDATE "+getNomeTabela()+" SET nome = ?, preco = ?, duracao = ? WHERE id = ?";
     }
 
     @Override
     public Servico retornarSelecionado() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            Servico servico = null;
+            if (resultSet != null) {
+                servico = new Servico();
+                servico.setId(resultSet.getInt("id"));
+                servico.setUuid(resultSet.getString("uuid"));
+                servico.setNome(resultSet.getString("nome"));
+                //campos incompativeis mudar??
+                //servico.setPreco(resultSet.getFloat("preco"));
+                //servico.getDuracao(resultSet.getInt("duracao");
+                /*
+                    BANCO DE DADOS
+
+                    CREATE TABLE IF NOT EXISTS servico (
+                            id SERIAL UNIQUE PRIMARY KEY,
+                            nome VARCHAR(30),
+                            preco DECIMAL(5,2),
+                            duracao INT
+                    );
+
+                
+                    CLASSE ENTIDADE
+
+                    private int id;
+                    private String nome;
+                    private String descricao;
+                    private double preco;
+                */
+            }
+            return servico;
+        } catch (SQLException err) {
+            System.out.println("Erro ao acessar statement: " + err.getMessage());
+        }
+        return null;
     }
     
 }

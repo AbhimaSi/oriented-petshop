@@ -1,6 +1,8 @@
 package com.mycompany.javapet.controller;
 
+import static com.mycompany.javapet.controller.GenericDAO.resultSet;
 import com.mycompany.javapet.model.Funcionario;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class FuncionarioDAO extends GenericDAO<Funcionario> {
@@ -25,13 +27,21 @@ public class FuncionarioDAO extends GenericDAO<Funcionario> {
     }
 
     @Override
-    public ArrayList<Funcionario> retornarLista() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public Funcionario retornarSelecionado() {
+        try {
+            Funcionario funcionario = null;
+            if (resultSet != null) {
+                funcionario = new Funcionario();
+                funcionario.setId(resultSet.getInt("id"));
+                funcionario.setUuid(resultSet.getString("uuid"));
+                funcionario.setNome(resultSet.getString("nome"));
+                funcionario.setCargo(resultSet.getString("cargo"));
+            }
+            return funcionario;
+        } catch (SQLException err) {
+            System.out.println("Erro ao acessar statement: " + err.getMessage());
+        }
+        return null;
     }
 
-    @Override
-    public Funcionario retornarSelecionado() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
 }

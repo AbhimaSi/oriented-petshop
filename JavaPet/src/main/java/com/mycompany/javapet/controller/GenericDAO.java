@@ -33,6 +33,10 @@ public abstract class GenericDAO <T>{
         return "SELECT * FROM "+getNomeTabela()+" WHERE id = ?";
     }
     
+    public String getSqlBuscarPorUuid(){
+        return "SELECT * FROM "+getNomeTabela()+" WHERE uuid = ?";
+    }
+    
     public String getSqlInserir(){
         if(entidade != null){
             return entidadeParaInsert();
@@ -57,7 +61,9 @@ public abstract class GenericDAO <T>{
         String sqlBuscarTodos = getSqlBuscarTodos();
         
         try{
-            statement = this.connection.prepareStatement(sqlBuscarTodos);
+            int type = ResultSet.TYPE_SCROLL_SENSITIVE;
+            int conc = ResultSet.CONCUR_READ_ONLY;
+            statement = this.connection.prepareStatement(sqlBuscarTodos, type, conc);
             resultSet = statement.executeQuery();
             return true;
         }
@@ -71,13 +77,32 @@ public abstract class GenericDAO <T>{
         String sqlBuscarId = getSqlBuscarPorId();
         
         try{
-            statement = this.connection.prepareStatement(sqlBuscarId);
+            int type = ResultSet.TYPE_SCROLL_SENSITIVE;
+            int conc = ResultSet.CONCUR_READ_ONLY;
+            statement = this.connection.prepareStatement(sqlBuscarId, type, conc);
             statement.setInt(1, id);
             resultSet = statement.executeQuery();
             return true;
         }
         catch(SQLException err){
             System.err.println("Erro durante consulta por id: "+err.getMessage());
+        }
+        return false;
+    }
+    
+    public boolean buscarPorUuid(String uuid){
+        String sqlBuscarUuid = getSqlBuscarPorUuid();
+        
+        try{
+            int type = ResultSet.TYPE_SCROLL_SENSITIVE;
+            int conc = ResultSet.CONCUR_READ_ONLY;
+            statement = this.connection.prepareStatement(sqlBuscarUuid, type, conc);
+            statement.setObject(1, uuid);
+            resultSet = statement.executeQuery();
+            return true;
+        }
+        catch(SQLException err){
+            System.err.println("Erro durante consulta por uuid: "+err.getMessage());
         }
         return false;
     }
@@ -141,7 +166,24 @@ public abstract class GenericDAO <T>{
         return false;
     }
     
-    public abstract ArrayList<T> retornarLista();
+    public ArrayList<T> retornarLista(){
+        ArrayList<T> lista = null;
+        if(resultSet != null && JDBCUtil.hasElements(resultSet)){
+            lista = new ArrayList<>();
+            while (JDBCUtil.movProximo(resultSet)) {
+                lista.add(retornarSelecionado());
+            }
+        }
+        return lista;
+    };
+    
+//    public boolean selecionarProximo(){
+//        if(resultSet != null){
+//            return JDBCUtil.movProximo(resultSet);
+//        }
+//        return false;
+//    }
+    
     public abstract T retornarSelecionado();
     
     // define os parametros de um statement de insert
@@ -158,16 +200,20 @@ public abstract class GenericDAO <T>{
         if(campos != null){
             try{
                 Method[] metodos = entidade.getDeclaredMethods();
-                for(int i = 0; i < campos.length; i++){
+                for (int i = 0; i < campos.length; i++) {
                     Method getter = ClassUtil.encontrarGetterDeCampo(metodos, campos[i]);
-                    Object valor = getter.invoke(objeto);
-                    
-                    // parsear id para int se necessário
-                    if(campos[i].equalsIgnoreCase("id") && valor.getClass().getSimpleName().equalsIgnoreCase("String")){
-                        valor = Integer.parseInt((String)valor);
+                    if(getter != null){
+                        Object valor = getter.invoke(objeto);
+                        statement.setObject(i + 1, valor);
                     }
-                    
-              statement.setObject(i+1, valor);
+                    else{
+                        System.err.println("Campo '"+campos[i]+"' nao contem getter correspondente na classe "+entidade.getName());
+                    }
+                    // parsear id para int se necessário
+//                    if(campos[i].equalsIgnoreCase("id") && valor.getClass().getSimpleName().equalsIgnoreCase("String")){
+//                        valor = Integer.parseInt((String)valor);
+//                    }
+
                 }
                 return statement;
             }

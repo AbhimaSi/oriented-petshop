@@ -3,7 +3,8 @@ package com.mycompany.javapet.model;
 import java.util.List;
 
 public class Cliente {
-    private String id;
+    private int id;
+    private String uuid;
     private String nome;
     private int telefone;
     private String endereco;
@@ -11,22 +12,31 @@ public class Cliente {
     
     public Cliente() { }
     
-    public Cliente(String id, String nome, int telefone, String endereco, List<Animal> animais) {
+    public Cliente(int id, String uuid, String nome, int telefone, String endereco, List<Animal> animais) {
         this.id = id;
+        this.uuid = uuid;
         this.nome = nome;
         this.telefone = telefone;
         this.endereco = endereco;
         this.animais = animais;
     }
     
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
+    public String getUuid() { 
+        return uuid; 
+    }
+    
+    public void setUuid(String uuid) { 
+        this.uuid = uuid;
+    }
+    
     public String getNome() {
         return nome;
     }

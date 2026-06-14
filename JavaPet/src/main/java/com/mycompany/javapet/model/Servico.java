@@ -2,14 +2,16 @@ package com.mycompany.javapet.model;
 
 public class Servico {
     private int id;
+    private String uuid;
     private String nome;
     private String descricao;
     private double preco;
     
     public Servico() { }
     
-    public Servico(String nome, String descricao, double preco) {
-        this.nome      = nome;
+    public Servico(String nome, String uuid, String descricao, double preco) {
+        this.nome = nome;
+        this.uuid = uuid;
         this.descricao = descricao;
         this.preco     = preco;
     }
@@ -22,6 +24,14 @@ public class Servico {
         this.id = id;
     }
 
+    public String getUuid() { 
+        return uuid; 
+    }
+    
+    public void setUuid(String uuid) { 
+        this.uuid = uuid;
+    }
+    
     public String getNome() { 
         return nome;
     }
