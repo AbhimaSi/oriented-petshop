@@ -1,5 +1,6 @@
 package com.mycompany.javapet.controller;
 
+import com.mycompany.javapet.model.Tabela;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -7,8 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.UUID;
 
-public abstract class GenericDAO <T>{
+public abstract class GenericDAO <T extends Tabela>{
     protected Class<T> entidade = null;
     protected Connection connection = null;
     protected static PreparedStatement statement = null;
@@ -45,16 +47,28 @@ public abstract class GenericDAO <T>{
         return null;
     }
     
-    public String getSqlAtualizar(){
+    public String getSqlAtualizarPorId(){
         if(entidade != null){
-            return entidadeParaUpdate();
+            return entidadeParaUpdate("id");
+        }
+        System.err.println("Classe entidade nao definida. Metodo 'getSqlAtualizar' precisa ser reescrito.");
+        return null;
+    }
+
+    public String getSqlAtualizarPorUuid(){
+        if(entidade != null){
+            return entidadeParaUpdate("uuid");
         }
         System.err.println("Classe entidade nao definida. Metodo 'getSqlAtualizar' precisa ser reescrito.");
         return null;
     }
     
-    public String getSqlRemover(){
+    public String getSqlRemoverPorId(){
         return "DELETE FROM "+getNomeTabela()+" WHERE id = ?";
+    }
+    
+    public String getSqlRemoverPorUuid(){
+        return "DELETE FROM "+getNomeTabela()+" WHERE uuid = ?";
     }
     
     public boolean buscarTodos(){
@@ -92,12 +106,11 @@ public abstract class GenericDAO <T>{
     
     public boolean buscarPorUuid(String uuid){
         String sqlBuscarUuid = getSqlBuscarPorUuid();
-        
         try{
             int type = ResultSet.TYPE_SCROLL_SENSITIVE;
             int conc = ResultSet.CONCUR_READ_ONLY;
             statement = this.connection.prepareStatement(sqlBuscarUuid, type, conc);
-            statement.setObject(1, uuid);
+            statement.setObject(1, UUID.fromString(uuid));
             resultSet = statement.executeQuery();
             return true;
         }
@@ -128,7 +141,17 @@ public abstract class GenericDAO <T>{
     }
     
     public boolean atualizar(T objeto){
-        String sqlAtualizar = getSqlAtualizar();
+        String sqlAtualizar = null;
+        if(objeto.getId() != 0){
+            sqlAtualizar = getSqlAtualizarPorId();
+        }
+        else if(objeto.getUuid() != null){
+            sqlAtualizar = getSqlAtualizarPorUuid();
+        }
+        else{
+            return false;
+        }
+        
         try{
             statement = this.connection.prepareStatement(sqlAtualizar);
             definirParamsDeStatement(statement, sqlAtualizar, objeto);
@@ -147,12 +170,24 @@ public abstract class GenericDAO <T>{
         return false;
     }
     
-    public boolean remover(int id){
-        String sqlRemover = getSqlRemover();
+    public boolean remover(T objeto){
+        String sqlRemover = null;
+        Object pk = null;
+        if(objeto.getId() != 0){
+            sqlRemover = getSqlRemoverPorId();
+            pk = objeto.getId();
+        }
+        else if(objeto.getUuid() != null){
+            sqlRemover = getSqlRemoverPorUuid();
+            pk = UUID.fromString(objeto.getUuid());
+        }
+        else{
+            return false;
+        }
         
         try{
             statement = this.connection.prepareStatement(sqlRemover);
-            statement.setInt(1, id);
+            statement.setObject(1, pk);
             int updated = statement.executeUpdate();
             if(updated == 1){
                 this.connection.commit();
@@ -204,6 +239,11 @@ public abstract class GenericDAO <T>{
                     Method getter = ClassUtil.encontrarGetterDeCampo(metodos, campos[i]);
                     if(getter != null){
                         Object valor = getter.invoke(objeto);
+                        
+                        // parsear String para UUID se necessário
+                        if(campos[i].equalsIgnoreCase("uuid") && valor.getClass().getSimpleName().equalsIgnoreCase("String")){
+                            valor = UUID.fromString((String) valor);
+                        }
                         statement.setObject(i + 1, valor);
                     }
                     else{
@@ -250,7 +290,7 @@ public abstract class GenericDAO <T>{
         StringBuilder atributos = new StringBuilder();
         int qtdAtributos = 0;
         for(int i = 0; i < listaAtributos.length; i++){
-            if(!(listaAtributos[i].equalsIgnoreCase("id"))){
+            if(!(listaAtributos[i].equalsIgnoreCase("id") || listaAtributos[i].equalsIgnoreCase("uuid"))){
                 atributos.append(listaAtributos[i]);
                 if(i != (listaAtributos.length-1)){
                     atributos.append(", ");
@@ -292,11 +332,11 @@ public abstract class GenericDAO <T>{
     }
     
     // converte os atributos de uma classe entidade para uma string update
-    private String entidadeParaUpdate(){
+    private String entidadeParaUpdate(String pk){
         String[] listaAtributos = ClassUtil.getNomesDeAtributos(entidade);
         StringBuilder atributos = new StringBuilder();
         for(int i = 0; i < listaAtributos.length; i++){
-            if(!(listaAtributos[i].equalsIgnoreCase("id"))){
+            if(!(listaAtributos[i].equalsIgnoreCase("id") || listaAtributos[i].equalsIgnoreCase("uuid"))){
                 atributos.append(listaAtributos[i]);
                 if(i != (listaAtributos.length-1)){
                     atributos.append(" = ?, ");
@@ -311,7 +351,9 @@ public abstract class GenericDAO <T>{
         sql.append(entidade.getSimpleName())
                 .append(" SET ")
                 .append(atributos)
-                .append("WHERE id = ?");
+                .append("WHERE ")
+                .append(pk)
+                .append(" = ?");
         
         return sql.toString();
     }
