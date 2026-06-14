@@ -22,9 +22,15 @@ public class ServicoDAO extends GenericDAO<Servico> {
     }
 
     @Override
-    public String getSqlAtualizar() {
+    public String getSqlAtualizarPorId() {
         return "UPDATE "+getNomeTabela()+" SET nome = ? WHERE id = ?";
         //return "UPDATE "+getNomeTabela()+" SET nome = ?, preco = ?, duracao = ? WHERE id = ?";
+    }
+    
+    @Override
+    public String getSqlAtualizarPorUuid() {
+        return "UPDATE "+getNomeTabela()+" SET nome = ? WHERE uuid = ?";
+        //return "UPDATE "+getNomeTabela()+" SET nome = ?, preco = ?, duracao = ? WHERE uuid = ?";
     }
 
     @Override

@@ -24,6 +24,11 @@ public class AnimalDAO extends GenericDAO<Animal> {
     public String getSqlAtualizarPorId() {
         return "UPDATE "+getNomeTabela()+" SET idcliente = ?, nome = ?, especie = ?, raca = ? WHERE id = ?";
     }
+    
+    @Override
+    public String getSqlAtualizarPorUuid() {
+        return "UPDATE "+getNomeTabela()+" SET idcliente = ?, nome = ?, especie = ?, raca = ? WHERE uuid = ?";
+    }
 
     @Override
     public Animal retornarSelecionado() {
