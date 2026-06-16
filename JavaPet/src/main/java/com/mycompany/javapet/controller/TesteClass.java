@@ -1,10 +1,9 @@
 package com.mycompany.javapet.controller;
-
-import com.mycompany.javapet.model.Animal;
-import com.mycompany.javapet.model.Atendimento;
-import com.mycompany.javapet.model.Cliente;
-import com.mycompany.javapet.model.Funcionario;
-import com.mycompany.javapet.model.Servico;
+import com.mycompany.javapet.model.*;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,10 +11,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+@SpringBootApplication
 public class TesteClass {
-    public static void main(String arg[]){
-        testarTudo(true);
+    public static void main(String args[]){
+        //testarTudo(true);
         //testarFuncionario(true);
+        
+        
+        SpringApplication.run(TesteClass.class, args);
         
     }
 

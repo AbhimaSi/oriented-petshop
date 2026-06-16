@@ -33,7 +33,7 @@ public class DBConnection {
             String username = JDBCUtil.getUsername();
             String password = JDBCUtil.getPassword();
             connection = DriverManager.getConnection(url, username, password);
-            connection.setAutoCommit(false);
+            connection.setAutoCommit(true);
             return true;
         }
         catch(FileNotFoundException err){

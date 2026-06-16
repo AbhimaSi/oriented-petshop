@@ -96,7 +96,7 @@ public abstract class GenericDAO <T extends Tabela>{
             statement = this.connection.prepareStatement(sqlBuscarId, type, conc);
             statement.setInt(1, id);
             resultSet = statement.executeQuery();
-            return true;
+            return resultSet.next();
         }
         catch(SQLException err){
             System.err.println("Erro durante consulta por id: "+err.getMessage());
@@ -112,7 +112,7 @@ public abstract class GenericDAO <T extends Tabela>{
             statement = this.connection.prepareStatement(sqlBuscarUuid, type, conc);
             statement.setObject(1, UUID.fromString(uuid));
             resultSet = statement.executeQuery();
-            return true;
+            return resultSet.next();
         }
         catch(SQLException err){
             System.err.println("Erro durante consulta por uuid: "+err.getMessage());
