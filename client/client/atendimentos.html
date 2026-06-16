@@ -46,6 +46,7 @@
                 <div>
                     <h3>Lista de atendimentos</h3>
                     <p>Consulte os atendimentos agendados para os animais.</p>
+                    <p id="appointmentFeedback" class="feedback-message" aria-live="polite"></p>
                 </div>
 
             </div>
@@ -54,11 +55,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Cliente</th>
-                            <th>Animal</th>
-                            <th>Servico</th>
-                            <th>Funcionario</th>
+                            <th>ID Pet</th>
+                            <th>ID Servico</th>
+                            <th>ID Funcionario</th>
                             <th>Data</th>
+                            <th>Hora</th>
                             <th>Status</th>
                             <th>Acoes</th>
                         </tr>
@@ -86,23 +87,18 @@
                 <input type="hidden" id="appointmentId" name="id">
 
                 <div class="form-group">
-                    <label for="cliente">Cliente</label>
-                    <input id="cliente" name="cliente" type="text" required>
+                    <label for="idPet">ID pet</label>
+                    <input id="idPet" name="idPet" type="number" min="1" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="animal">Animal</label>
-                    <input id="animal" name="animal" type="text" required>
+                    <label for="idServico">ID servico</label>
+                    <input id="idServico" name="idServico" type="number" min="1" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="servico">Servico</label>
-                    <input id="servico" name="servico" type="text" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="funcionario">Funcionario</label>
-                    <input id="funcionario" name="funcionario" type="text" required>
+                    <label for="idFuncionario">ID funcionario</label>
+                    <input id="idFuncionario" name="idFuncionario" type="number" min="1" required>
                 </div>
 
                 <div class="form-group">
@@ -111,17 +107,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="horario">Horario</label>
-                    <input id="horario" name="horario" type="time" required>
+                    <label for="hora">Hora</label>
+                    <input id="hora" name="hora" type="time" required>
                 </div>
 
-                <div class="form-group full-width">
+                <div class="form-group">
                     <label for="status">Status</label>
                     <select id="status" name="status" required>
-                        <option value="Agendado">Agendado</option>
-                        <option value="Em andamento">Em andamento</option>
-                        <option value="Concluido">Concluido</option>
-                        <option value="Cancelado">Cancelado</option>
+                        <option value="AGENDADO">Agendado</option>
+                        <option value="EM ANDAMENTO">Em andamento</option>
+                        <option value="CONCLUIDO">Concluido</option>
+                        <option value="CANCELADO">Cancelado</option>
                     </select>
                 </div>
 

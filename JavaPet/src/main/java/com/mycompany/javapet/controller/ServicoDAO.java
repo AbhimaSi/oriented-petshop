@@ -38,6 +38,9 @@ public class ServicoDAO extends GenericDAO<Servico> {
         try {
             Servico servico = null;
             if (resultSet != null) {
+                 if (resultSet.isBeforeFirst()){
+                    JDBCUtil.movInicial(resultSet);
+                }
                 servico = new Servico();
                 servico.setId(resultSet.getInt("id"));
                 servico.setUuid(resultSet.getString("uuid"));

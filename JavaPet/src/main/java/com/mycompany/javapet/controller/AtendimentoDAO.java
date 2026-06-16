@@ -34,6 +34,9 @@ public class AtendimentoDAO extends GenericDAO<Atendimento> {
         try {
             Atendimento atendimento = null;
             if (resultSet != null) {
+                 if (resultSet.isBeforeFirst()){
+                    JDBCUtil.movInicial(resultSet);
+                }
                 atendimento = new Atendimento();
                 atendimento.setUuid(resultSet.getString("uuid"));
                 atendimento.setId(resultSet.getInt("id"));

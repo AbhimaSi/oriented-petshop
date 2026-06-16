@@ -253,6 +253,16 @@ tr:last-child td {
     color: var(--muted);
 }
 
+.feedback-message {
+    min-height: 18px;
+    margin-top: 8px;
+    color: var(--muted);
+}
+
+.feedback-message[data-type="error"] {
+    color: var(--danger);
+}
+
 .modal-backdrop {
     position: fixed;
     inset: 0;

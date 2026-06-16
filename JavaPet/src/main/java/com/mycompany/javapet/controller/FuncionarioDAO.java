@@ -56,8 +56,12 @@ public class FuncionarioDAO extends GenericDAO<Funcionario> {
     @Override
     public Funcionario retornarSelecionado() {
         try {
+             if (resultSet.isBeforeFirst()){
+                    JDBCUtil.movInicial(resultSet);
+            }
             Funcionario funcionario = null;
             if (resultSet != null) {
+                
                 funcionario = new Funcionario();
                 funcionario.setId(resultSet.getInt("id"));
                 funcionario.setUuid(resultSet.getString("uuid"));

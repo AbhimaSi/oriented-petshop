@@ -35,6 +35,9 @@ public class AnimalDAO extends GenericDAO<Animal> {
         try {
             Animal animal = null;
             if (resultSet != null) {
+                 if (resultSet.isBeforeFirst()){
+                    JDBCUtil.movInicial(resultSet);
+                }
                 animal = new Animal();
                 animal.setId(resultSet.getInt("id"));
                 animal.setUuid(resultSet.getString("uuid"));
