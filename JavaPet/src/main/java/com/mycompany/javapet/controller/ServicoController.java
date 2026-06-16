@@ -34,6 +34,9 @@ public class ServicoController {
 
     @PostMapping
     public boolean inserir(@RequestBody Servico servico) {
+        System.out.println("Nome: " + servico.getNome());
+        System.out.println("Descricao: " + servico.getDescricao());
+        System.out.println("Preco: " + servico.getPreco());
         return servicoDAO.inserir(servico);
     }
 

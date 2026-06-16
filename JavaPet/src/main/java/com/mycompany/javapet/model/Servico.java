@@ -13,7 +13,7 @@ public class Servico implements Tabela{
         this.nome = nome;
         this.uuid = uuid;
         this.descricao = descricao;
-        this.preco     = preco;
+        this.preco = preco;
     }
     
     public int getId() { 

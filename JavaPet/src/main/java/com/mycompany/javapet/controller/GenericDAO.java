@@ -125,10 +125,11 @@ public abstract class GenericDAO <T extends Tabela>{
         try{
             statement = this.connection.prepareStatement(sqlInserir);
             definirParamsDeStatement(statement, sqlInserir, objeto);
-
             int updated = statement.executeUpdate();
+            System.out.println("Linhas afetadas: " + updated);
+            System.out.println(getSqlInserir());
             if(updated == 1){
-                this.connection.commit();
+                //this.connection.commit();
                 return true;
             }
             this.connection.rollback();
@@ -158,7 +159,7 @@ public abstract class GenericDAO <T extends Tabela>{
 
             int updated = statement.executeUpdate();
             if(updated == 1){
-                this.connection.commit();
+                //this.connection.commit();
                 return true;
             }
             this.connection.rollback();
@@ -190,7 +191,7 @@ public abstract class GenericDAO <T extends Tabela>{
             statement.setObject(1, pk);
             int updated = statement.executeUpdate();
             if(updated == 1){
-                this.connection.commit();
+                //this.connection.commit();
                 return true;
             }
             this.connection.rollback();

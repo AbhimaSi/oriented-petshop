@@ -17,8 +17,8 @@ public class ServicoDAO extends GenericDAO<Servico> {
 
     @Override
     public String getSqlInserir() {
-        return "INSERT INTO "+getNomeTabela()+" (nome) VALUES (?)";
-        //return "INSERT INTO "+getNomeTabela()+" (nome, preco, duracao) VALUES (?, ?, ?)";
+        //return "INSERT INTO "+getNomeTabela()+" (nome) VALUES (?)";
+        return "INSERT INTO "+getNomeTabela()+" (nome, descricao, preco) VALUES (?, ?, ?)";
     }
 
     @Override
