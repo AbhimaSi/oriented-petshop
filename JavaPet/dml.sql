@@ -29,10 +29,3 @@ INSERT INTO servico (nome, preco, duracao) VALUES ('BUSCA DE ANIMAL', 10.00, 10)
 INSERT INTO produto (nome, preco) VALUES ('whiskas sache', 5.00);
 
 
-INSERT INTO animal_atendimento (idatendimento, idservico, idanimal, idfuncionario) VALUES (1, 4, 2, 3);
-INSERT INTO animal_atendimento (idatendimento, idservico, idanimal, idfuncionario) VALUES (1, 4, 3, 3);
-
-
-INSERT INTO produto_atendimento (idatendimento, idfuncionario, idproduto) VALUES (2, 4, 1);
-
-
