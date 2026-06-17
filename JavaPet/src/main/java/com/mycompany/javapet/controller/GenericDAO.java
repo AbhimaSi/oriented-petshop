@@ -72,12 +72,14 @@ public abstract class GenericDAO <T extends Tabela>{
     }
     
     public boolean buscarTodos(){
-        String sqlBuscarTodos = getSqlBuscarTodos();
-        
+        return buscarTodos(getSqlBuscarTodos());
+    }
+
+    public boolean buscarTodos(String sql){
         try{
             int type = ResultSet.TYPE_SCROLL_SENSITIVE;
             int conc = ResultSet.CONCUR_READ_ONLY;
-            statement = this.connection.prepareStatement(sqlBuscarTodos, type, conc);
+            statement = this.connection.prepareStatement(sql, type, conc);
             resultSet = statement.executeQuery();
             return true;
         }
@@ -88,12 +90,14 @@ public abstract class GenericDAO <T extends Tabela>{
     }
     
     public boolean buscarPorId(int id){
-        String sqlBuscarId = getSqlBuscarPorId();
-        
+        return buscarPorId(id, getSqlBuscarPorId());
+    }
+
+    public boolean buscarPorId(int id, String sql){
         try{
             int type = ResultSet.TYPE_SCROLL_SENSITIVE;
             int conc = ResultSet.CONCUR_READ_ONLY;
-            statement = this.connection.prepareStatement(sqlBuscarId, type, conc);
+            statement = this.connection.prepareStatement(sql, type, conc);
             statement.setInt(1, id);
             resultSet = statement.executeQuery();
             return resultSet.next();
@@ -105,6 +109,10 @@ public abstract class GenericDAO <T extends Tabela>{
     }
     
     public boolean buscarPorUuid(String uuid){
+        return buscarPorUuid(uuid, getSqlBuscarPorUuid());
+    }
+    
+    public boolean buscarPorUuid(String uuid, String sql){
         String sqlBuscarUuid = getSqlBuscarPorUuid();
         try{
             int type = ResultSet.TYPE_SCROLL_SENSITIVE;
@@ -186,8 +194,12 @@ public abstract class GenericDAO <T extends Tabela>{
             return false;
         }
         
+        return remover(pk, sqlRemover);
+    }
+    
+    public boolean remover(Object pk, String sql){
         try{
-            statement = this.connection.prepareStatement(sqlRemover);
+            statement = this.connection.prepareStatement(sql);
             statement.setObject(1, pk);
             int updated = statement.executeUpdate();
             if(updated == 1){
@@ -213,17 +225,10 @@ public abstract class GenericDAO <T extends Tabela>{
         return lista;
     };
     
-//    public boolean selecionarProximo(){
-//        if(resultSet != null){
-//            return JDBCUtil.movProximo(resultSet);
-//        }
-//        return false;
-//    }
-    
     public abstract T retornarSelecionado();
     
     // define os parametros de um statement de insert
-    private PreparedStatement definirParamsDeStatement(PreparedStatement statement, String sql, T objeto){
+    protected PreparedStatement definirParamsDeStatement(PreparedStatement statement, String sql, T objeto){
         String operacao = sql.split(" ")[0];
         String[] campos = null;
         if(operacao.equalsIgnoreCase("INSERT")){

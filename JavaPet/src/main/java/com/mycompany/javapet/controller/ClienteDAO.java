@@ -34,8 +34,8 @@ public class ClienteDAO extends GenericDAO<Cliente> {
         try{
             Cliente cliente = null;
             if(resultSet != null){
-                 if (resultSet.isBeforeFirst()){
-                    JDBCUtil.movInicial(resultSet);
+                if (resultSet.isBeforeFirst()){
+                    JDBCUtil.movProximo(resultSet);
                 }
                 cliente = new Cliente();
                 cliente.setId(resultSet.getInt("id"));

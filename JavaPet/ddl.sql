@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS funcionario (
 	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	nome VARCHAR(50),
 	email VARCHAR(25) UNIQUE NOT NULL,
-	senha VARCHAR(50) NOT NULL,
+	senha VARCHAR(75) NOT NULL,
 	cargo VARCHAR(50),
 	PRIMARY KEY(id, uuid)
 );
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS servico (
 	id SERIAL UNIQUE,
 	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	nome VARCHAR(30),
-        descricao VARCHAR(30),
+        descricao VARCHAR(100),
 	preco DECIMAL(5,2),
 	PRIMARY KEY(id, uuid)
 );
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS animal_atendimento (
 	idservico INT NOT NULL,
 	idanimal INT NOT NULL,
 	idfuncionario INT NOT NULL,
-        duracao INT,
+        duracao INT DEFAULT 0,
 	FOREIGN KEY (idatendimento) REFERENCES atendimento (id),
 	FOREIGN KEY (idservico) REFERENCES servico (id),
 	FOREIGN KEY (idanimal) REFERENCES animal (id),

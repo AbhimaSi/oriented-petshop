@@ -8,7 +8,7 @@ INSERT INTO animal (idcliente, nome, especie, raca) VALUES (3, 'Caramelo', 'Cach
 INSERT INTO animal (idcliente, nome, especie, raca) VALUES (2, 'Gota DAgua', 'Gato', 'Frajola');
 INSERT INTO animal (idcliente, nome, especie, raca) VALUES (1, 'Frido', 'Gato', 'Siames');
 INSERT INTO animal (idcliente, nome, especie, raca) VALUES (3, 'Ghost', 'Cachorro', 'Husky');
-INSERT INTO animal (nome, especie, raca) VALUES ('Neguinho', 'Cachorro', 'Salsicha');
+INSERT INTO animal (idcliente, nome, especie, raca) VALUES (1, 'Neguinho', 'Cachorro', 'Salsicha');
 
 
 INSERT INTO funcionario (nome, cargo, email, senha) VALUES ('Alisson', 'Veterinário', 'alisson@javapet.com', '1234');
@@ -17,8 +17,8 @@ INSERT INTO funcionario (nome, cargo, email, senha) VALUES ('Ronaldo', 'Afazeres
 INSERT INTO funcionario (nome, cargo, email, senha) VALUES ('Samuel', 'Atendente', 'samu@javapet.com', '1234');
 
 
-INSERT INTO atendimento (data_atendimento, hora_atendimento, status) VALUES ('2026-06-01', '20:30:00','EM ANDAMENTO');
-INSERT INTO atendimento (data_atendimento, hora_atendimento, status) VALUES ('2026-06-02', '12:00:00','CONCLUIDO');
+INSERT INTO atendimento (data, hora, status) VALUES ('2026-06-01', '20:30:00','EM ANDAMENTO');
+INSERT INTO atendimento (data, hora, status) VALUES ('2026-06-02', '12:00:00','CONCLUIDO');
 INSERT INTO atendimento (status) VALUES ('EM ANDAMENTO');
 
 

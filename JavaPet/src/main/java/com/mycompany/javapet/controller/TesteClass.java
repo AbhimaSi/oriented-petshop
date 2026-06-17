@@ -14,11 +14,8 @@ import java.util.ArrayList;
 @SpringBootApplication
 public class TesteClass {
     public static void main(String args[]){
-        //testarTudo(true);
-        //testarFuncionario(true);
-        
-        
-        SpringApplication.run(TesteClass.class, args);
+        testarTudo(true);
+        //SpringApplication.run(TesteClass.class, args);
         
     }
 
@@ -64,7 +61,6 @@ public class TesteClass {
         }
         System.out.println("\n");
     }
-    
     public static void testarListaClientes(boolean limpar){
         if(limpar){
             limparTabela("cliente");
@@ -98,7 +94,6 @@ public class TesteClass {
             limparTabela("cliente");
         }
     }
-    
     public static void testarAnimal(boolean limpar){
         if(limpar){
             limparTabela("animal");
@@ -184,35 +179,103 @@ public class TesteClass {
     }
     public static void testarAtendimento(boolean limpar){
         if(limpar){
+            limparTabela("animal_atendimento");
+            limparTabela("animal");
+            limparTabela("cliente");
+            limparTabela("servico");
+            limparTabela("funcionario");
             limparTabela("atendimento");
         }
-        Atendimento a1 = new Atendimento();
-        a1.setData(LocalDate.now());
-        a1.setHora(LocalTime.now());
-        a1.setStatus("Em andamento");
+        
+        Cliente cliente = new Cliente();
+        cliente.setNome("nome");
+        cliente.setTelefone("123");
+        cliente.setEndereco("teste rua");
+        ClienteDAO daocliente = new ClienteDAO();
+        daocliente.inserir(cliente);
+        daocliente.buscarTodos();
+        cliente = daocliente.retornarSelecionado();
+        
+        Animal animal = new Animal();
+        animal.setNome("nome");
+        animal.setEspecie("cachorro");
+        animal.setRaca("husky");
+        animal.setIdCliente(cliente.getId());
+        AnimalDAO daoanimal = new AnimalDAO();
+        daoanimal.inserir(animal);
+        daoanimal.buscarTodos();
+        animal = daoanimal.retornarSelecionado();
+        
+        Servico servico = new Servico();
+        servico.setNome("Banho");
+        servico.setDescricao("Banho com shampoo/condicionador");
+        servico.setPreco(43.30);
+        ServicoDAO daoservico = new ServicoDAO();
+        daoservico.inserir(servico);
+        daoservico.buscarTodos();
+        servico = daoservico.retornarSelecionado();
+        
+        Funcionario funcionario = new Funcionario();
+        funcionario.setNome("richard");
+        funcionario.setEmail("richrd@javapet.com");
+        funcionario.setSenha("SenhaMuitoComplexa123Zebra");
+        FuncionarioDAO daofuncionario = new FuncionarioDAO();
+        daofuncionario.inserir(funcionario);
+        daofuncionario.buscarTodos();
+        funcionario = daofuncionario.retornarSelecionado();
+        
+        Atendimento atendimento = new Atendimento();
+        atendimento.setData(LocalDate.now());
+        atendimento.setHora(LocalTime.now());
+        atendimento.setStatus("Em andamento");
         
         AtendimentoDAO dao = new AtendimentoDAO();
         
-        dao.inserir(a1);
+        dao.inserir(atendimento);
         dao.buscarTodos();
         JDBCUtil.movPrimeiro(dao.getResultSet());
-        a1 = dao.retornarSelecionado();
+        atendimento = dao.retornarSelecionado();
         System.out.println("\nAtendimento inserido: ");
-        printAtendimento(a1);
+        printAtendimento(atendimento);
         
-        a1.setStatus("concluido");
-        dao.atualizar(a1);
-        dao.buscarPorId(a1.getId());
-        JDBCUtil.movPrimeiro(dao.getResultSet());
-        a1 = dao.retornarSelecionado();
+        atendimento.setStatus("concluido");
+        dao.atualizar(atendimento);
+        dao.buscarPorId(atendimento.getId());
+        atendimento = dao.retornarSelecionado();
         System.out.println("\nAtendimento atualizado: ");
-        printAtendimento(a1);
+        printAtendimento(atendimento);
         
-        if(dao.remover(a1)){
-            System.out.println("\nAtendimento removido.");
+        AtendimentoAnimal at = new AtendimentoAnimal();
+        at.setId(atendimento.getId());
+        at.setIdServico(servico.getId());
+        at.setIdAnimal(animal.getId());
+        at.setIdFuncionario(funcionario.getId());
+        at.setDuracao(10);
+        dao.inserirAtendimentoAnimal(at);
+        dao.buscarAtendimentoAnimal();
+        at = dao.retornarAtendimentoAnimalSelecionado();
+        System.out.println(":::: Atendimento de Animal :::: <--- INSERCAO\n");
+        printAtendimentoAnimal(at);
+        
+        at.setDuracao(60);
+        dao.atualizarAtendimentoAnimalPorId(at);
+        dao.buscarAtendimentoAnimalPorId(at);
+        at = dao.retornarAtendimentoAnimalSelecionado();
+        System.out.println(":::: Atendimento de Animal :::: <--- ATUALIZACAO\n");
+        printAtendimentoAnimal(at);
+        
+        if(
+                dao.removerAtendimentoAnimal(at)
+                && daoanimal.remover(animal)
+                && daoservico.remover(servico)
+                && daofuncionario.remover(funcionario)
+                && dao.remover(atendimento)
+        )
+        {
+            System.out.println("\nTabelas foram removidas.");
         }
         else{
-            System.out.println("\nAtendimento nao foi removido.");
+            System.out.println("\nTabelas nao foram removidas.");
         }
         System.out.println("\n");
     }
@@ -222,6 +285,9 @@ public class TesteClass {
         }
         Servico s1 = new Servico();
         s1.setNome("Banho");
+        s1.setDescricao("Serviços de banho e higienizacao de pet");
+        s1.setPreco(43.30);
+        
         
         ServicoDAO dao = new ServicoDAO();
         
@@ -233,6 +299,8 @@ public class TesteClass {
         printServico(s1);
         
         s1.setNome("Busca de animal");
+        s1.setDescricao("Busca do pet em casa");
+        s1.setPreco(199.00);
         dao.atualizar(s1);
         dao.buscarPorId(s1.getId());
         JDBCUtil.movPrimeiro(dao.getResultSet());
@@ -278,10 +346,24 @@ public class TesteClass {
         System.out.println("....hora: "+a.getHora());
         System.out.println("..status: "+a.getStatus());
     }
+    public static void printAtendimentoAnimal(AtendimentoAnimal a){
+        System.out.println("......id: "+a.getId());
+        System.out.println("idtabela: "+a.getIdTabela());
+        System.out.println("....uuid: "+a.getUuid());
+        System.out.println("....data: "+a.getData());
+        System.out.println("....hora: "+a.getHora());
+        System.out.println("..status: "+a.getStatus());
+        System.out.println(".servico: "+a.getIdServico());
+        System.out.println("..animal: "+a.getIdAnimal());
+        System.out.println("..idfunc: "+a.getIdFuncionario());
+        System.out.println(".duracao: "+a.getDuracao());
+    }
     public static void printServico(Servico s){
-        System.out.println("......id: "+s.getId());
-        System.out.println("....uuid: "+s.getUuid());
-        System.out.println("....nome: "+s.getNome());
+        System.out.println(".......id: "+s.getId());
+        System.out.println(".....uuid: "+s.getUuid());
+        System.out.println(".....nome: "+s.getNome());
+        System.out.println("descricao: "+s.getDescricao());
+        System.out.println("....preco: "+s.getPreco());
     }
     
     
@@ -296,7 +378,13 @@ public class TesteClass {
         catch(SQLException err){}
     }
     
-    // aplicar SOLID
-    // refatorar design pattern
+    public static void limparTabelas(){
+            limparTabela("animal_atendimento");
+            limparTabela("animal");
+            limparTabela("cliente");
+            limparTabela("servico");
+            limparTabela("funcionario");
+            limparTabela("atendimento");
+    }
 
 }
