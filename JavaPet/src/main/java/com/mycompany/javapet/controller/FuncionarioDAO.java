@@ -57,7 +57,7 @@ public class FuncionarioDAO extends GenericDAO<Funcionario> {
     public Funcionario retornarSelecionado() {
         try {
              if (resultSet.isBeforeFirst()){
-                    JDBCUtil.movInicial(resultSet);
+                    JDBCUtil.movProximo(resultSet);
             }
             Funcionario funcionario = null;
             if (resultSet != null) {

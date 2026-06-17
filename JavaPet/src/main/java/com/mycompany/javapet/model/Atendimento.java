@@ -2,7 +2,6 @@ package com.mycompany.javapet.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 public class Atendimento implements Tabela {
     private int id;
@@ -10,21 +9,16 @@ public class Atendimento implements Tabela {
     private LocalDate data;
     private LocalTime hora;
     private String status;
-    private String idPet;
-    private int idFuncionario;
-    private List<Servico> servicos;
     
     public Atendimento() { }
     
-    public Atendimento(int id, String uuid, LocalDate data, LocalTime hora, String status, String idPet, int idFuncionario, List<Servico> servicos) {
+    public Atendimento(int id, String uuid, LocalDate data, LocalTime hora, String status) {
         this.id = id;
         this.uuid = uuid;
         this.data = data;
         this.hora = hora;
         this.status = status;
-        this.idPet = idPet;
-        this.idFuncionario = idFuncionario;
-        this.servicos = servicos;
+        
     }
     
     public int getId() {
@@ -65,29 +59,5 @@ public class Atendimento implements Tabela {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getIdPet() {
-        return idPet;
-    }
-
-    public void setIdPet(String idPet) {
-        this.idPet = idPet;
-    }
-
-    public int getIdFuncionario() {
-        return idFuncionario;
-    }
-
-    public void setIdFuncionario(int idFuncionario) {
-        this.idFuncionario = idFuncionario;
-    }
-    
-    public List<Servico> getServicos() {
-        return servicos;
-    }
-    
-    public void setServicos(List<Servico> servicos) {
-        this.servicos = servicos;
     }
 }
