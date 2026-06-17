@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS servico (
 	id SERIAL UNIQUE,
 	uuid UUID UNIQUE DEFAULT gen_random_uuid(),
 	nome VARCHAR(30),
+        descricao VARCHAR(30),
 	preco DECIMAL(5,2),
-	duracao INT,
 	PRIMARY KEY(id, uuid)
 );
 
@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS animal_atendimento (
 	idservico INT NOT NULL,
 	idanimal INT NOT NULL,
 	idfuncionario INT NOT NULL,
+        duracao INT,
 	FOREIGN KEY (idatendimento) REFERENCES atendimento (id),
 	FOREIGN KEY (idservico) REFERENCES servico (id),
 	FOREIGN KEY (idanimal) REFERENCES animal (id),

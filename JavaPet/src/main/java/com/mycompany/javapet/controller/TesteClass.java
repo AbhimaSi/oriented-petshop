@@ -36,7 +36,7 @@ public class TesteClass {
         }
         Cliente c1 = new Cliente();
         c1.setNome("nome");
-        c1.setTelefone(123);
+        c1.setTelefone("123");
         c1.setEndereco("teste rua");
         
         ClienteDAO dao = new ClienteDAO();
@@ -71,15 +71,15 @@ public class TesteClass {
         }
         Cliente c1 = new Cliente();
         c1.setNome("juan");
-        c1.setTelefone(727);
+        c1.setTelefone("727");
         c1.setEndereco("rua luis de lima, 347");
         Cliente c2 = new Cliente();
         c2.setNome("pedro");
-        c2.setTelefone(420);
+        c2.setTelefone("420");
         c2.setEndereco("rua albert einstein, 142");
         Cliente c3 = new Cliente();
         c3.setNome("pablo");
-        c3.setTelefone(123);
+        c3.setTelefone("123");
         c3.setEndereco("rua los angeles, 67");
 
         ClienteDAO dao = new ClienteDAO();

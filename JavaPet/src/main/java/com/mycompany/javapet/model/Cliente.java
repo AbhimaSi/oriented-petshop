@@ -6,13 +6,13 @@ public class Cliente implements Tabela {
     private int id;
     private String uuid;
     private String nome;
-    private int telefone;
+    private String telefone;
     private String endereco;
     private List<Animal> animais;
     
     public Cliente() { }
     
-    public Cliente(int id, String uuid, String nome, int telefone, String endereco, List<Animal> animais) {
+    public Cliente(int id, String uuid, String nome, String telefone, String endereco, List<Animal> animais) {
         this.id = id;
         this.uuid = uuid;
         this.nome = nome;
@@ -45,11 +45,11 @@ public class Cliente implements Tabela {
         this.nome = nome;
     }
 
-    public int getTelefone() {
+    public String getTelefone() {
         return telefone;
     }
 
-    public void setTelefone(int telefone) {
+    public void setTelefone(String telefone) {
         this.telefone = telefone;
     }
 

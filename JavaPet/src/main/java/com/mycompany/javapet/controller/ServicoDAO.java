@@ -38,34 +38,15 @@ public class ServicoDAO extends GenericDAO<Servico> {
         try {
             Servico servico = null;
             if (resultSet != null) {
-                 if (resultSet.isBeforeFirst()){
+                if (resultSet.isBeforeFirst()){
                     JDBCUtil.movInicial(resultSet);
                 }
                 servico = new Servico();
                 servico.setId(resultSet.getInt("id"));
                 servico.setUuid(resultSet.getString("uuid"));
                 servico.setNome(resultSet.getString("nome"));
-                //campos incompativeis mudar??
-                //servico.setPreco(resultSet.getFloat("preco"));
-                //servico.getDuracao(resultSet.getInt("duracao");
-                /*
-                    BANCO DE DADOS
-
-                    CREATE TABLE IF NOT EXISTS servico (
-                            id SERIAL UNIQUE PRIMARY KEY,
-                            nome VARCHAR(30),
-                            preco DECIMAL(5,2),
-                            duracao INT
-                    );
-
-                
-                    CLASSE ENTIDADE
-
-                    private int id;
-                    private String nome;
-                    private String descricao;
-                    private double preco;
-                */
+                servico.setDescricao(resultSet.getString("descricao"));
+                servico.setPreco(resultSet.getDouble("preco"));
             }
             return servico;
         } catch (SQLException err) {

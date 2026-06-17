@@ -22,8 +22,8 @@ INSERT INTO atendimento (data_atendimento, hora_atendimento, status) VALUES ('20
 INSERT INTO atendimento (status) VALUES ('EM ANDAMENTO');
 
 
-INSERT INTO servico (nome, preco, duracao) VALUES ('BANHO', 10.00, 10);
-INSERT INTO servico (nome, preco, duracao) VALUES ('TOSA', 15.00, 10);
-INSERT INTO servico (nome, preco, duracao) VALUES ('BANHO E TOSA', 20.00, 20);
-INSERT INTO servico (nome, preco, duracao) VALUES ('BUSCA DE ANIMAL', 10.00, 10);
+INSERT INTO servico (nome, descricao, preco) VALUES ('BANHO', 'Banho completo do animal utilizando shampoo/condicionador.', 10.00);
+INSERT INTO servico (nome, descricao, preco) VALUES ('TOSA', 'Aparagem da pelugem de animal ao pedido do cliente.', 15.00);
+INSERT INTO servico (nome, preco) VALUES ('BANHO E TOSA', 20.00);
+INSERT INTO servico (nome, preco) VALUES ('BUSCA DE ANIMAL', 10.00);
 INSERT INTO produto (nome, preco) VALUES ('whiskas sache', 5.00);
