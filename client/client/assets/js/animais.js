@@ -1,34 +1,7 @@
-const initialAnimals = [
-    {
-        id: 1,
-        nome: "Mel",
-        tutor: "Mariana Costa",
-        especie: "Cachorro",
-        raca: "Golden Retriever",
-        idade: "4 anos",
-        peso: "28 kg"
-    },
-    {
-        id: 2,
-        nome: "Tom",
-        tutor: "Lucas Ferreira",
-        especie: "Gato",
-        raca: "SRD",
-        idade: "2 anos",
-        peso: "5 kg"
-    },
-    {
-        id: 3,
-        nome: "Luna",
-        tutor: "Ana Souza",
-        especie: "Cachorro",
-        raca: "Poodle",
-        idade: "6 anos",
-        peso: "8 kg"
-    }
-];
+const API_BASE_URL = localStorage.getItem("javaPetApiBaseUrl") || "http://localhost:8080";
 
 const animalsTableBody = document.getElementById("animalsTableBody");
+const animalFeedback = document.getElementById("animalFeedback");
 const openModalButton = document.getElementById("openModalButton");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const closeModalButton = document.getElementById("closeModalButton");
@@ -36,45 +9,95 @@ const cancelModalButton = document.getElementById("cancelModalButton");
 const animalForm = document.getElementById("animalForm");
 const modalTitle = document.getElementById("modalTitle");
 
-let animals = [...initialAnimals];
+let animals = [];
 
 const animalsService = {
     async list() {
-        return [...animals];
+        return apiRequest("/animais/listar");
     },
 
     async save(animal) {
         if (animal.id) {
-            animals = animals.map((item) =>
-                item.id === animal.id ? animal : item
-            );
-
-            return animal;
+            return apiRequest(`/animais/${animal.id}`, {
+                method: "PUT",
+                body: JSON.stringify(animal)
+            });
         }
 
-        const nextId = animals.length
-            ? Math.max(...animals.map((item) => item.id)) + 1
-            : 1;
-
-        const createdAnimal = {
-            ...animal,
-            id: nextId
-        };
-
-        animals.push(createdAnimal);
-        return createdAnimal;
+        return apiRequest("/animais", {
+            method: "POST",
+            body: JSON.stringify(animal)
+        });
     },
 
     async remove(id) {
-        animals = animals.filter((animal) => animal.id !== id);
+        return apiRequest(`/animais/${id}`, {
+            method: "DELETE"
+        });
     }
 };
+
+async function apiRequest(path, options = {}) {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers
+        },
+        ...options
+    });
+
+    if (!response.ok) {
+        throw new Error(`Erro ${response.status} ao chamar ${path}`);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+}
+
+function normalizeAnimal(animal) {
+    return {
+        id: animal.id ? String(animal.id) : "",
+        nome: animal.nome || "",
+        especie: animal.especie || "",
+        raca: animal.raca || "",
+        idCliente: animal.idCliente || animal.idcliente || ""
+    };
+}
+
+function buildAnimalPayload(formData) {
+    const animal = Object.fromEntries(formData.entries());
+
+    return {
+        id: animal.id ? Number(animal.id) : null,
+        nome: animal.nome.trim(),
+        especie: animal.especie,
+        raca: animal.raca.trim(),
+        idCliente: animal.idCliente ? Number(animal.idCliente) : 0
+    };
+}
+
+function setFeedback(message, type = "") {
+    animalFeedback.textContent = message;
+    animalFeedback.dataset.type = type;
+}
+
+function renderLoading() {
+    animalsTableBody.innerHTML = `
+        <tr>
+            <td class="empty-row" colspan="5">Carregando animais...</td>
+        </tr>
+    `;
+}
 
 function renderAnimals() {
     if (!animals.length) {
         animalsTableBody.innerHTML = `
             <tr>
-                <td class="empty-row" colspan="7">Nenhum animal encontrado.</td>
+                <td class="empty-row" colspan="5">Nenhum animal encontrado.</td>
             </tr>
         `;
         return;
@@ -83,11 +106,9 @@ function renderAnimals() {
     animalsTableBody.innerHTML = animals.map((animal) => `
         <tr>
             <td>${animal.nome}</td>
-            <td>${animal.tutor}</td>
+            <td>${animal.idCliente || "-"}</td>
             <td>${animal.especie}</td>
             <td>${animal.raca}</td>
-            <td>${animal.idade}</td>
-            <td>${animal.peso}</td>
             <td>
                 <div class="table-actions">
                     <button class="small-button" data-action="edit" data-id="${animal.id}" type="button">
@@ -108,11 +129,9 @@ function openModal(animal = null) {
 
     document.getElementById("animalId").value = animal ? animal.id : "";
     document.getElementById("nome").value = animal ? animal.nome : "";
-    document.getElementById("tutor").value = animal ? animal.tutor : "";
+    document.getElementById("idCliente").value = animal ? animal.idCliente : "";
     document.getElementById("especie").value = animal ? animal.especie : "Cachorro";
     document.getElementById("raca").value = animal ? animal.raca : "";
-    document.getElementById("idade").value = animal ? animal.idade : "";
-    document.getElementById("peso").value = animal ? animal.peso : "";
 
     modalBackdrop.hidden = false;
 }
@@ -122,19 +141,37 @@ function closeModal() {
     animalForm.reset();
 }
 
+async function loadAnimals() {
+    renderLoading();
+    setFeedback("");
+
+    try {
+        const records = await animalsService.list();
+        animals = Array.isArray(records) ? records.map(normalizeAnimal) : [];
+        renderAnimals();
+    } catch (error) {
+        animals = [];
+        renderAnimals();
+        setFeedback(
+            "Nao foi possivel carregar os animais. Verifique se a API possui a rota /animais/listar.",
+            "error"
+        );
+    }
+}
+
 async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(animalForm);
-    const animal = Object.fromEntries(formData.entries());
+    const animal = buildAnimalPayload(formData);
 
-    await animalsService.save({
-        ...animal,
-        id: animal.id ? Number(animal.id) : null
-    });
-
-    closeModal();
-    renderAnimals();
+    try {
+        await animalsService.save(animal);
+        closeModal();
+        await loadAnimals();
+    } catch (error) {
+        setFeedback("Nao foi possivel salvar o animal. Confira a API de animais.", "error");
+    }
 }
 
 async function handleTableClick(event) {
@@ -144,7 +181,7 @@ async function handleTableClick(event) {
         return;
     }
 
-    const id = Number(button.dataset.id);
+    const id = button.dataset.id;
     const animal = animals.find((item) => item.id === id);
 
     if (button.dataset.action === "edit") {
@@ -152,8 +189,16 @@ async function handleTableClick(event) {
         return;
     }
 
-    await animalsService.remove(id);
-    renderAnimals();
+    if (!confirm("Excluir este animal?")) {
+        return;
+    }
+
+    try {
+        await animalsService.remove(id);
+        await loadAnimals();
+    } catch (error) {
+        setFeedback("Nao foi possivel excluir o animal. Confira a API de animais.", "error");
+    }
 }
 
 openModalButton.addEventListener("click", () => openModal());
@@ -168,7 +213,4 @@ modalBackdrop.addEventListener("click", (event) => {
     }
 });
 
-animalsService.list().then((records) => {
-    animals = records;
-    renderAnimals();
-});
+loadAnimals();

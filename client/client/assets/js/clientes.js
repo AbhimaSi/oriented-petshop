@@ -1,31 +1,7 @@
-const initialClients = [
-    {
-        id: 1,
-        nome: "Mariana Costa",
-        cpf: "123.456.789-00",
-        telefone: "(11) 98888-1234",
-        email: "mariana@email.com",
-        endereco: "Rua das Flores, 120"
-    },
-    {
-        id: 2,
-        nome: "Lucas Ferreira",
-        cpf: "987.654.321-00",
-        telefone: "(11) 97777-9876",
-        email: "lucas@email.com",
-        endereco: "Avenida Brasil, 450"
-    },
-    {
-        id: 3,
-        nome: "Ana Souza",
-        cpf: "456.789.123-00",
-        telefone: "(11) 96666-4321",
-        email: "ana@email.com",
-        endereco: "Rua do Parque, 78"
-    }
-];
+const API_BASE_URL = localStorage.getItem("javaPetApiBaseUrl") || "http://localhost:8080";
 
 const clientsTableBody = document.getElementById("clientsTableBody");
+const clientFeedback = document.getElementById("clientFeedback");
 const openModalButton = document.getElementById("openModalButton");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const closeModalButton = document.getElementById("closeModalButton");
@@ -33,45 +9,93 @@ const cancelModalButton = document.getElementById("cancelModalButton");
 const clientForm = document.getElementById("clientForm");
 const modalTitle = document.getElementById("modalTitle");
 
-let clients = [...initialClients];
+let clients = [];
 
 const clientsService = {
     async list() {
-        return [...clients];
+        return apiRequest("/clientes/listar");
     },
 
     async save(client) {
         if (client.id) {
-            clients = clients.map((item) =>
-                item.id === client.id ? client : item
-            );
-
-            return client;
+            return apiRequest(`/clientes/${client.id}`, {
+                method: "PUT",
+                body: JSON.stringify(client)
+            });
         }
 
-        const nextId = clients.length
-            ? Math.max(...clients.map((item) => item.id)) + 1
-            : 1;
-
-        const createdClient = {
-            ...client,
-            id: nextId
-        };
-
-        clients.push(createdClient);
-        return createdClient;
+        return apiRequest("/clientes", {
+            method: "POST",
+            body: JSON.stringify(client)
+        });
     },
 
     async remove(id) {
-        clients = clients.filter((client) => client.id !== id);
+        return apiRequest(`/clientes/${id}`, {
+            method: "DELETE"
+        });
     }
 };
+
+async function apiRequest(path, options = {}) {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers
+        },
+        ...options
+    });
+
+    if (!response.ok) {
+        throw new Error(`Erro ${response.status} ao chamar ${path}`);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+}
+
+function normalizeClient(client) {
+    return {
+        id: client.id ? String(client.id) : "",
+        nome: client.nome || "",
+        telefone: client.telefone || "",
+        endereco: client.endereco || ""
+    };
+}
+
+function buildClientPayload(formData) {
+    const client = Object.fromEntries(formData.entries());
+
+    return {
+        id: client.id ? Number(client.id) : null,
+        nome: client.nome.trim(),
+        telefone: client.telefone.trim(),
+        endereco: client.endereco.trim()
+    };
+}
+
+function setFeedback(message, type = "") {
+    clientFeedback.textContent = message;
+    clientFeedback.dataset.type = type;
+}
+
+function renderLoading() {
+    clientsTableBody.innerHTML = `
+        <tr>
+            <td class="empty-row" colspan="4">Carregando clientes...</td>
+        </tr>
+    `;
+}
 
 function renderClients() {
     if (!clients.length) {
         clientsTableBody.innerHTML = `
             <tr>
-                <td class="empty-row" colspan="6">Nenhum cliente encontrado.</td>
+                <td class="empty-row" colspan="4">Nenhum cliente encontrado.</td>
             </tr>
         `;
         return;
@@ -80,9 +104,7 @@ function renderClients() {
     clientsTableBody.innerHTML = clients.map((client) => `
         <tr>
             <td>${client.nome}</td>
-            <td>${client.cpf}</td>
             <td>${client.telefone}</td>
-            <td>${client.email}</td>
             <td>${client.endereco}</td>
             <td>
                 <div class="table-actions">
@@ -104,9 +126,7 @@ function openModal(client = null) {
 
     document.getElementById("clientId").value = client ? client.id : "";
     document.getElementById("nome").value = client ? client.nome : "";
-    document.getElementById("cpf").value = client ? client.cpf : "";
     document.getElementById("telefone").value = client ? client.telefone : "";
-    document.getElementById("email").value = client ? client.email : "";
     document.getElementById("endereco").value = client ? client.endereco : "";
 
     modalBackdrop.hidden = false;
@@ -117,19 +137,37 @@ function closeModal() {
     clientForm.reset();
 }
 
+async function loadClients() {
+    renderLoading();
+    setFeedback("");
+
+    try {
+        const records = await clientsService.list();
+        clients = Array.isArray(records) ? records.map(normalizeClient) : [];
+        renderClients();
+    } catch (error) {
+        clients = [];
+        renderClients();
+        setFeedback(
+            "Nao foi possivel carregar os clientes. Verifique se a API possui a rota /clientes/listar.",
+            "error"
+        );
+    }
+}
+
 async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(clientForm);
-    const client = Object.fromEntries(formData.entries());
+    const client = buildClientPayload(formData);
 
-    await clientsService.save({
-        ...client,
-        id: client.id ? Number(client.id) : null
-    });
-
-    closeModal();
-    renderClients();
+    try {
+        await clientsService.save(client);
+        closeModal();
+        await loadClients();
+    } catch (error) {
+        setFeedback("Nao foi possivel salvar o cliente. Confira a API de clientes.", "error");
+    }
 }
 
 async function handleTableClick(event) {
@@ -139,7 +177,7 @@ async function handleTableClick(event) {
         return;
     }
 
-    const id = Number(button.dataset.id);
+    const id = button.dataset.id;
     const client = clients.find((item) => item.id === id);
 
     if (button.dataset.action === "edit") {
@@ -147,8 +185,16 @@ async function handleTableClick(event) {
         return;
     }
 
-    await clientsService.remove(id);
-    renderClients();
+    if (!confirm("Excluir este cliente?")) {
+        return;
+    }
+
+    try {
+        await clientsService.remove(id);
+        await loadClients();
+    } catch (error) {
+        setFeedback("Nao foi possivel excluir o cliente. Confira a API de clientes.", "error");
+    }
 }
 
 openModalButton.addEventListener("click", () => openModal());
@@ -163,7 +209,4 @@ modalBackdrop.addEventListener("click", (event) => {
     }
 });
 
-clientsService.list().then((records) => {
-    clients = records;
-    renderClients();
-});
+loadClients();

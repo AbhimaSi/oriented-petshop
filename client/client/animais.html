@@ -54,17 +54,17 @@
                     <thead>
                         <tr>
                             <th>Nome</th>
-                            <th>Tutor</th>
+                            <th>ID Cliente</th>
                             <th>Especie</th>
                             <th>Raca</th>
-                            <th>Idade</th>
-                            <th>Peso</th>
                             <th>Acoes</th>
                         </tr>
                     </thead>
                     <tbody id="animalsTableBody"></tbody>
                 </table>
             </div>
+
+            <p id="animalFeedback" class="feedback-message"></p>
         </section>
     </main>
 
@@ -90,8 +90,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="tutor">Tutor</label>
-                    <input id="tutor" name="tutor" type="text" required>
+                    <label for="idCliente">ID Cliente</label>
+                    <input id="idCliente" name="idCliente" type="number" min="1" required>
                 </div>
 
                 <div class="form-group">
@@ -107,16 +107,6 @@
                 <div class="form-group">
                     <label for="raca">Raca</label>
                     <input id="raca" name="raca" type="text" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="idade">Idade</label>
-                    <input id="idade" name="idade" type="text" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="peso">Peso</label>
-                    <input id="peso" name="peso" type="text" required>
                 </div>
 
                 <div class="form-actions">

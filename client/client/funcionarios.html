@@ -55,15 +55,15 @@
                         <tr>
                             <th>Nome</th>
                             <th>Cargo</th>
-                            <th>Telefone</th>
                             <th>Email</th>
-                            <th>Status</th>
                             <th>Acoes</th>
                         </tr>
                     </thead>
                     <tbody id="employeesTableBody"></tbody>
                 </table>
             </div>
+
+            <p id="employeeFeedback" class="feedback-message"></p>
         </section>
     </main>
 
@@ -94,21 +94,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="telefone">Telefone</label>
-                    <input id="telefone" name="telefone" type="text" required>
-                </div>
-
-                <div class="form-group">
                     <label for="email">Email</label>
                     <input id="email" name="email" type="email" required>
                 </div>
 
-                <div class="form-group full-width">
-                    <label for="status">Status</label>
-                    <select id="status" name="status" required>
-                        <option value="Ativo">Ativo</option>
-                        <option value="Inativo">Inativo</option>
-                    </select>
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <input id="senha" name="senha" type="password" required>
                 </div>
 
                 <div class="form-actions">

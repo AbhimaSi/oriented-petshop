@@ -1,47 +1,32 @@
 const loginForm = document.getElementById("loginForm");
 const errorMessage = document.getElementById("errorMessage");
 
-loginForm.addEventListener("submit", async (event) => {
+loginForm.addEventListener("submit", (event) => {
 
     event.preventDefault();
 
     errorMessage.style.display = "none";
 
-    const email = document.getElementById("email").value.trim();
+    const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
 
-    try {
+    const validUsername = "admin";
+    const validPassword = "admin";
 
-        /*
-        Futuramente:
-
-        const response = await login(email, password);
-
-        if (!response.ok) {
-            throw new Error();
-        }
-
-        */
-
-        const validEmail = "admin@petshop.com";
-        const validPassword = "123456";
-
-        if (
-            email !== validEmail ||
-            password !== validPassword
-        ) {
-            throw new Error();
-        }
-
-        alert("Login realizado com sucesso.");
-
-        window.location.href = "./atendimentos.html";
-
-    } catch {
+    if (
+        username !== validUsername ||
+        password !== validPassword
+    ) {
 
         errorMessage.textContent =
-            "Email ou senha invalidos.";
+            "Usuario ou senha invalidos.";
 
         errorMessage.style.display = "block";
+
+        return;
     }
+
+    alert("Login realizado com sucesso.");
+
+    window.location.href = "./atendimentos.html";
 });

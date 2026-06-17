@@ -1,31 +1,7 @@
-const initialEmployees = [
-    {
-        id: 1,
-        nome: "Carlos Almeida",
-        cargo: "Banhista",
-        telefone: "(11) 95555-1234",
-        email: "carlos@javapet.com",
-        status: "Ativo"
-    },
-    {
-        id: 2,
-        nome: "Fernanda Lima",
-        cargo: "Veterinaria",
-        telefone: "(11) 94444-5678",
-        email: "fernanda@javapet.com",
-        status: "Ativo"
-    },
-    {
-        id: 3,
-        nome: "Rafael Santos",
-        cargo: "Atendente",
-        telefone: "(11) 93333-9012",
-        email: "rafael@javapet.com",
-        status: "Inativo"
-    }
-];
+const API_BASE_URL = localStorage.getItem("javaPetApiBaseUrl") || "http://localhost:8080";
 
 const employeesTableBody = document.getElementById("employeesTableBody");
+const employeeFeedback = document.getElementById("employeeFeedback");
 const openModalButton = document.getElementById("openModalButton");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const closeModalButton = document.getElementById("closeModalButton");
@@ -33,49 +9,95 @@ const cancelModalButton = document.getElementById("cancelModalButton");
 const employeeForm = document.getElementById("employeeForm");
 const modalTitle = document.getElementById("modalTitle");
 
-let employees = [...initialEmployees];
+let employees = [];
 
 const employeesService = {
     async list() {
-        return [...employees];
+        return apiRequest("/funcionarios/listar");
     },
 
     async save(employee) {
         if (employee.id) {
-            employees = employees.map((item) =>
-                item.id === employee.id ? employee : item
-            );
-
-            return employee;
+            return apiRequest(`/funcionarios/${employee.id}`, {
+                method: "PUT",
+                body: JSON.stringify(employee)
+            });
         }
 
-        const nextId = employees.length
-            ? Math.max(...employees.map((item) => item.id)) + 1
-            : 1;
-
-        const createdEmployee = {
-            ...employee,
-            id: nextId
-        };
-
-        employees.push(createdEmployee);
-        return createdEmployee;
+        return apiRequest("/funcionarios", {
+            method: "POST",
+            body: JSON.stringify(employee)
+        });
     },
 
     async remove(id) {
-        employees = employees.filter((employee) => employee.id !== id);
+        return apiRequest(`/funcionarios/${id}`, {
+            method: "DELETE"
+        });
     }
 };
 
-function getStatusClass(status) {
-    return status === "Inativo" ? "danger" : "";
+async function apiRequest(path, options = {}) {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers
+        },
+        ...options
+    });
+
+    if (!response.ok) {
+        throw new Error(`Erro ${response.status} ao chamar ${path}`);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+}
+
+function normalizeEmployee(employee) {
+    return {
+        id: employee.id ? String(employee.id) : "",
+        nome: employee.nome || "",
+        cargo: employee.cargo || "",
+        email: employee.email || "",
+        senha: employee.senha || ""
+    };
+}
+
+function buildEmployeePayload(formData) {
+    const employee = Object.fromEntries(formData.entries());
+
+    return {
+        id: employee.id ? Number(employee.id) : null,
+        nome: employee.nome.trim(),
+        email: employee.email.trim(),
+        senha: employee.senha,
+        cargo: employee.cargo.trim()
+    };
+}
+
+function setFeedback(message, type = "") {
+    employeeFeedback.textContent = message;
+    employeeFeedback.dataset.type = type;
+}
+
+function renderLoading() {
+    employeesTableBody.innerHTML = `
+        <tr>
+            <td class="empty-row" colspan="4">Carregando funcionarios...</td>
+        </tr>
+    `;
 }
 
 function renderEmployees() {
     if (!employees.length) {
         employeesTableBody.innerHTML = `
             <tr>
-                <td class="empty-row" colspan="6">Nenhum funcionario encontrado.</td>
+                <td class="empty-row" colspan="4">Nenhum funcionario encontrado.</td>
             </tr>
         `;
         return;
@@ -85,13 +107,7 @@ function renderEmployees() {
         <tr>
             <td>${employee.nome}</td>
             <td>${employee.cargo}</td>
-            <td>${employee.telefone}</td>
             <td>${employee.email}</td>
-            <td>
-                <span class="status-badge ${getStatusClass(employee.status)}">
-                    ${employee.status}
-                </span>
-            </td>
             <td>
                 <div class="table-actions">
                     <button class="small-button" data-action="edit" data-id="${employee.id}" type="button">
@@ -113,9 +129,8 @@ function openModal(employee = null) {
     document.getElementById("employeeId").value = employee ? employee.id : "";
     document.getElementById("nome").value = employee ? employee.nome : "";
     document.getElementById("cargo").value = employee ? employee.cargo : "";
-    document.getElementById("telefone").value = employee ? employee.telefone : "";
     document.getElementById("email").value = employee ? employee.email : "";
-    document.getElementById("status").value = employee ? employee.status : "Ativo";
+    document.getElementById("senha").value = employee ? employee.senha : "";
 
     modalBackdrop.hidden = false;
 }
@@ -125,19 +140,37 @@ function closeModal() {
     employeeForm.reset();
 }
 
+async function loadEmployees() {
+    renderLoading();
+    setFeedback("");
+
+    try {
+        const records = await employeesService.list();
+        employees = Array.isArray(records) ? records.map(normalizeEmployee) : [];
+        renderEmployees();
+    } catch (error) {
+        employees = [];
+        renderEmployees();
+        setFeedback(
+            "Nao foi possivel carregar os funcionarios. Verifique se a API possui a rota /funcionarios/listar.",
+            "error"
+        );
+    }
+}
+
 async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(employeeForm);
-    const employee = Object.fromEntries(formData.entries());
+    const employee = buildEmployeePayload(formData);
 
-    await employeesService.save({
-        ...employee,
-        id: employee.id ? Number(employee.id) : null
-    });
-
-    closeModal();
-    renderEmployees();
+    try {
+        await employeesService.save(employee);
+        closeModal();
+        await loadEmployees();
+    } catch (error) {
+        setFeedback("Nao foi possivel salvar o funcionario. Confira a API de funcionarios.", "error");
+    }
 }
 
 async function handleTableClick(event) {
@@ -147,7 +180,7 @@ async function handleTableClick(event) {
         return;
     }
 
-    const id = Number(button.dataset.id);
+    const id = button.dataset.id;
     const employee = employees.find((item) => item.id === id);
 
     if (button.dataset.action === "edit") {
@@ -155,8 +188,16 @@ async function handleTableClick(event) {
         return;
     }
 
-    await employeesService.remove(id);
-    renderEmployees();
+    if (!confirm("Excluir este funcionario?")) {
+        return;
+    }
+
+    try {
+        await employeesService.remove(id);
+        await loadEmployees();
+    } catch (error) {
+        setFeedback("Nao foi possivel excluir o funcionario. Confira a API de funcionarios.", "error");
+    }
 }
 
 openModalButton.addEventListener("click", () => openModal());
@@ -171,7 +212,4 @@ modalBackdrop.addEventListener("click", (event) => {
     }
 });
 
-employeesService.list().then((records) => {
-    employees = records;
-    renderEmployees();
-});
+loadEmployees();

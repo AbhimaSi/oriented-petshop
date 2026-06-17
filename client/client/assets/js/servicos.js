@@ -1,31 +1,7 @@
-const initialServices = [
-    {
-        id: 1,
-        nome: "Banho",
-        descricao: "Higienizacao completa do animal",
-        duracao: "45 min",
-        preco: "R$ 55,00",
-        status: "Ativo"
-    },
-    {
-        id: 2,
-        nome: "Tosa",
-        descricao: "Tosa conforme necessidade do animal",
-        duracao: "60 min",
-        preco: "R$ 75,00",
-        status: "Ativo"
-    },
-    {
-        id: 3,
-        nome: "Consulta veterinaria",
-        descricao: "Avaliacao clinica com veterinario",
-        duracao: "30 min",
-        preco: "R$ 120,00",
-        status: "Ativo"
-    }
-];
+const API_BASE_URL = localStorage.getItem("javaPetApiBaseUrl") || "http://localhost:8080";
 
 const servicesTableBody = document.getElementById("servicesTableBody");
+const serviceFeedback = document.getElementById("serviceFeedback");
 const openModalButton = document.getElementById("openModalButton");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const closeModalButton = document.getElementById("closeModalButton");
@@ -33,49 +9,104 @@ const cancelModalButton = document.getElementById("cancelModalButton");
 const serviceForm = document.getElementById("serviceForm");
 const modalTitle = document.getElementById("modalTitle");
 
-let services = [...initialServices];
+let services = [];
 
 const servicesService = {
     async list() {
-        return [...services];
+        return apiRequest("/servicos/listar");
     },
 
     async save(service) {
         if (service.id) {
-            services = services.map((item) =>
-                item.id === service.id ? service : item
-            );
-
-            return service;
+            return apiRequest(`/servicos/${service.id}`, {
+                method: "PUT",
+                body: JSON.stringify(service)
+            });
         }
 
-        const nextId = services.length
-            ? Math.max(...services.map((item) => item.id)) + 1
-            : 1;
-
-        const createdService = {
-            ...service,
-            id: nextId
-        };
-
-        services.push(createdService);
-        return createdService;
+        return apiRequest("/servicos", {
+            method: "POST",
+            body: JSON.stringify(service)
+        });
     },
 
     async remove(id) {
-        services = services.filter((service) => service.id !== id);
+        return apiRequest(`/servicos/${id}`, {
+            method: "DELETE"
+        });
     }
 };
 
-function getStatusClass(status) {
-    return status === "Inativo" ? "danger" : "";
+async function apiRequest(path, options = {}) {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers
+        },
+        ...options
+    });
+
+    if (!response.ok) {
+        throw new Error(`Erro ${response.status} ao chamar ${path}`);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+}
+
+function normalizeService(service) {
+    return {
+        id: service.id ? String(service.id) : "",
+        nome: service.nome || "",
+        descricao: service.descricao || "",
+        preco: service.preco ?? ""
+    };
+}
+
+function buildServicePayload(formData) {
+    const service = Object.fromEntries(formData.entries());
+
+    return {
+        id: service.id ? Number(service.id) : null,
+        nome: service.nome.trim(),
+        descricao: service.descricao.trim(),
+        preco: service.preco ? Number(service.preco) : 0
+    };
+}
+
+function formatPrice(value) {
+    if (value === "" || value === null || value === undefined) {
+        return "-";
+    }
+
+    return Number(value).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+}
+
+function setFeedback(message, type = "") {
+    serviceFeedback.textContent = message;
+    serviceFeedback.dataset.type = type;
+}
+
+function renderLoading() {
+    servicesTableBody.innerHTML = `
+        <tr>
+            <td class="empty-row" colspan="4">Carregando servicos...</td>
+        </tr>
+    `;
 }
 
 function renderServices() {
     if (!services.length) {
         servicesTableBody.innerHTML = `
             <tr>
-                <td class="empty-row" colspan="6">Nenhum servico encontrado.</td>
+                <td class="empty-row" colspan="4">Nenhum servico encontrado.</td>
             </tr>
         `;
         return;
@@ -84,14 +115,8 @@ function renderServices() {
     servicesTableBody.innerHTML = services.map((service) => `
         <tr>
             <td>${service.nome}</td>
-            <td>${service.descricao}</td>
-            <td>${service.duracao}</td>
-            <td>${service.preco}</td>
-            <td>
-                <span class="status-badge ${getStatusClass(service.status)}">
-                    ${service.status}
-                </span>
-            </td>
+            <td>${service.descricao || "-"}</td>
+            <td>${formatPrice(service.preco)}</td>
             <td>
                 <div class="table-actions">
                     <button class="small-button" data-action="edit" data-id="${service.id}" type="button">
@@ -113,9 +138,7 @@ function openModal(service = null) {
     document.getElementById("serviceId").value = service ? service.id : "";
     document.getElementById("nome").value = service ? service.nome : "";
     document.getElementById("descricao").value = service ? service.descricao : "";
-    document.getElementById("duracao").value = service ? service.duracao : "";
     document.getElementById("preco").value = service ? service.preco : "";
-    document.getElementById("status").value = service ? service.status : "Ativo";
 
     modalBackdrop.hidden = false;
 }
@@ -125,19 +148,37 @@ function closeModal() {
     serviceForm.reset();
 }
 
+async function loadServices() {
+    renderLoading();
+    setFeedback("");
+
+    try {
+        const records = await servicesService.list();
+        services = Array.isArray(records) ? records.map(normalizeService) : [];
+        renderServices();
+    } catch (error) {
+        services = [];
+        renderServices();
+        setFeedback(
+            "Nao foi possivel carregar os servicos. Verifique se a API possui a rota /servicos/listar.",
+            "error"
+        );
+    }
+}
+
 async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(serviceForm);
-    const service = Object.fromEntries(formData.entries());
+    const service = buildServicePayload(formData);
 
-    await servicesService.save({
-        ...service,
-        id: service.id ? Number(service.id) : null
-    });
-
-    closeModal();
-    renderServices();
+    try {
+        await servicesService.save(service);
+        closeModal();
+        await loadServices();
+    } catch (error) {
+        setFeedback("Nao foi possivel salvar o servico. Confira a API de servicos.", "error");
+    }
 }
 
 async function handleTableClick(event) {
@@ -147,7 +188,7 @@ async function handleTableClick(event) {
         return;
     }
 
-    const id = Number(button.dataset.id);
+    const id = button.dataset.id;
     const service = services.find((item) => item.id === id);
 
     if (button.dataset.action === "edit") {
@@ -155,8 +196,16 @@ async function handleTableClick(event) {
         return;
     }
 
-    await servicesService.remove(id);
-    renderServices();
+    if (!confirm("Excluir este servico?")) {
+        return;
+    }
+
+    try {
+        await servicesService.remove(id);
+        await loadServices();
+    } catch (error) {
+        setFeedback("Nao foi possivel excluir o servico. Confira a API de servicos.", "error");
+    }
 }
 
 openModalButton.addEventListener("click", () => openModal());
@@ -171,7 +220,4 @@ modalBackdrop.addEventListener("click", (event) => {
     }
 });
 
-servicesService.list().then((records) => {
-    services = records;
-    renderServices();
-});
+loadServices();
