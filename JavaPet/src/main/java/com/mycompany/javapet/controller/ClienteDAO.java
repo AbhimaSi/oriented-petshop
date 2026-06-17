@@ -41,7 +41,7 @@ public class ClienteDAO extends GenericDAO<Cliente> {
                 cliente.setId(resultSet.getInt("id"));
                 cliente.setUuid(resultSet.getString("uuid"));
                 cliente.setNome(resultSet.getString("nome"));
-                cliente.setTelefone(resultSet.getInt("telefone"));
+                cliente.setTelefone(resultSet.getString("telefone"));
                 cliente.setEndereco(resultSet.getString("endereco"));
             }
             return cliente;
