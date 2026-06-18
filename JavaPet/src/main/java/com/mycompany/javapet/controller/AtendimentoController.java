@@ -11,9 +11,9 @@ public class AtendimentoController {
     private final AtendimentoDAO atendimentoDAO = new AtendimentoDAO();
 
     @GetMapping("/listar")
-    public List<Atendimento> listar() {
-        atendimentoDAO.buscarTodos();
-        List<Atendimento> lista = atendimentoDAO.retornarLista();
+    public List<AtendimentoAnimal> listar() {
+        atendimentoDAO.buscarAtendimentoAnimal();
+        List<AtendimentoAnimal> lista = atendimentoDAO.retornarListaAtendimentoAnimal();
 
         System.out.println("Lista retornada: " + lista);
         System.out.println("resultSet = " + atendimentoDAO.resultSet);
@@ -23,30 +23,29 @@ public class AtendimentoController {
     
     
     @GetMapping("/{id}")
-    public Atendimento buscar(@PathVariable int id) {
-        if (atendimentoDAO.buscarPorId(id)) {
-            return atendimentoDAO.retornarSelecionado();
+    public AtendimentoAnimal buscar(@PathVariable int id) {
+        if (atendimentoDAO.buscarAtendimentoAnimalPorId(id)) {
+            return atendimentoDAO.retornarAtendimentoAnimalSelecionado();
         }
 
         return null;
     }
 
     @PostMapping
-    public boolean inserir(@RequestBody Atendimento atendimento) {
-        return atendimentoDAO.inserir(atendimento);
+    public boolean inserir(@RequestBody AtendimentoAnimal atendimento) {
+        return atendimentoDAO.inserirAtendimentoCompleto(atendimento);
     }
 
     @PutMapping("/{id}")
     public boolean atualizar(
         @PathVariable int id,
-        @RequestBody Atendimento atendimento) {
+        @RequestBody AtendimentoAnimal atendimento) {
         atendimento.setId(id);
-        return atendimentoDAO.atualizar(atendimento);
+        return atendimentoDAO.atualizarAtendimentoCompleto(atendimento);
     }
 
     @DeleteMapping("/{id}")
     public boolean remover(@PathVariable int id) {
-        atendimentoDAO.buscarPorId(id);
-        return atendimentoDAO.remover(atendimentoDAO.retornarSelecionado());
+        return atendimentoDAO.removerAtendimentoCompleto(id);
     }
 }

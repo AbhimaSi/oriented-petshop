@@ -8,8 +8,10 @@ const closeModalButton = document.getElementById("closeModalButton");
 const cancelModalButton = document.getElementById("cancelModalButton");
 const animalForm = document.getElementById("animalForm");
 const modalTitle = document.getElementById("modalTitle");
+const clientSelect = document.getElementById("idCliente");
 
 let animals = [];
+let clients = [];
 
 const animalsService = {
     async list() {
@@ -85,6 +87,22 @@ function setFeedback(message, type = "") {
     animalFeedback.dataset.type = type;
 }
 
+function setClientOptions(selectedId = "") {
+    clientSelect.innerHTML = `
+        <option value="">Selecione o cliente</option>
+        ${clients.map((client) => `
+            <option value="${client.id}">${client.nome}</option>
+        `).join("")}
+    `;
+    clientSelect.value = selectedId;
+    clientSelect.disabled = !clients.length;
+}
+
+function getClientName(id) {
+    const client = clients.find((item) => item.id === String(id));
+    return client ? client.nome : "-";
+}
+
 function renderLoading() {
     animalsTableBody.innerHTML = `
         <tr>
@@ -106,7 +124,7 @@ function renderAnimals() {
     animalsTableBody.innerHTML = animals.map((animal) => `
         <tr>
             <td>${animal.nome}</td>
-            <td>${animal.idCliente || "-"}</td>
+            <td>${getClientName(animal.idCliente)}</td>
             <td>${animal.especie}</td>
             <td>${animal.raca}</td>
             <td>
@@ -126,10 +144,10 @@ function renderAnimals() {
 function openModal(animal = null) {
     modalTitle.textContent = animal ? "Editar animal" : "Novo animal";
     animalForm.reset();
+    setClientOptions(animal ? animal.idCliente : "");
 
     document.getElementById("animalId").value = animal ? animal.id : "";
     document.getElementById("nome").value = animal ? animal.nome : "";
-    document.getElementById("idCliente").value = animal ? animal.idCliente : "";
     document.getElementById("especie").value = animal ? animal.especie : "Cachorro";
     document.getElementById("raca").value = animal ? animal.raca : "";
 
@@ -159,8 +177,35 @@ async function loadAnimals() {
     }
 }
 
+async function loadPageData() {
+    renderLoading();
+    setFeedback("");
+
+    try {
+        const clientRecords = await apiRequest("/clientes/listar");
+        const animalRecords = await animalsService.list();
+
+        clients = Array.isArray(clientRecords) ? clientRecords.map((client) => ({
+            ...client,
+            id: String(client.id)
+        })) : [];
+        animals = Array.isArray(animalRecords) ? animalRecords.map(normalizeAnimal) : [];
+        renderAnimals();
+    } catch (error) {
+        clients = [];
+        animals = [];
+        renderAnimals();
+        setFeedback("Nao foi possivel carregar os animais e clientes.", "error");
+    }
+}
+
 async function handleSubmit(event) {
     event.preventDefault();
+
+    if (!clientSelect.value) {
+        setFeedback("Cadastre e selecione um cliente antes de salvar o animal.", "error");
+        return;
+    }
 
     const formData = new FormData(animalForm);
     const animal = buildAnimalPayload(formData);
@@ -213,4 +258,4 @@ modalBackdrop.addEventListener("click", (event) => {
     }
 });
 
-loadAnimals();
+loadPageData();

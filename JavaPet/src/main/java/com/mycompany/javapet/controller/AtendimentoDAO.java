@@ -54,7 +54,7 @@ public class AtendimentoDAO extends GenericDAO<Atendimento> {
     }
     
     public String getSqlBuscarAtendimentoAnimalPorId(){
-        return "SELECT a.id, at.id as idtabela, a.uuid, a.data, a.hora, a.status, at.idservico, at.idanimal, at.idfuncionario, at.duracao FROM atendimento a LEFT JOIN animal_atendimento at ON a.id = at.idatendimento WHERE at.id = ?";
+        return "SELECT a.id, at.id as idtabela, a.uuid, a.data, a.hora, a.status, at.idservico, at.idanimal, at.idfuncionario, at.duracao FROM atendimento a LEFT JOIN animal_atendimento at ON a.id = at.idatendimento WHERE a.id = ?";
     }
     
     public String getSqlInserirAtendimentoAnimal(){
@@ -73,8 +73,79 @@ public class AtendimentoDAO extends GenericDAO<Atendimento> {
         return buscarTodos(getSqlBuscarAtendimentosAnimal());
     }
     
-    public boolean buscarAtendimentoAnimalPorId(AtendimentoAnimal at){
-        return buscarPorId(at.getIdTabela(), getSqlBuscarAtendimentoAnimalPorId());
+    public boolean buscarAtendimentoAnimalPorId(int id){
+        return buscarPorId(id, getSqlBuscarAtendimentoAnimalPorId());
+    }
+
+    public boolean buscarAtendimentoAnimalPorId(AtendimentoAnimal atendimento){
+        return buscarAtendimentoAnimalPorId(atendimento.getId());
+    }
+
+    public boolean inserirAtendimentoCompleto(AtendimentoAnimal atendimento){
+        String sql = "WITH novo_atendimento AS ("
+            + "INSERT INTO atendimento (data, hora, status) VALUES (?, ?, ?) RETURNING id"
+            + ") INSERT INTO animal_atendimento "
+            + "(idatendimento, idservico, idanimal, idfuncionario, duracao) "
+            + "SELECT id, ?, ?, ?, ? FROM novo_atendimento";
+
+        try {
+            statement = this.connection.prepareStatement(sql);
+            statement.setObject(1, atendimento.getData());
+            statement.setObject(2, atendimento.getHora());
+            statement.setString(3, atendimento.getStatus());
+            statement.setInt(4, atendimento.getIdServico());
+            statement.setInt(5, atendimento.getIdAnimal());
+            statement.setInt(6, atendimento.getIdFuncionario());
+            statement.setInt(7, atendimento.getDuracao());
+            return statement.executeUpdate() == 1;
+        }
+        catch(SQLException err){
+            System.err.println("Erro ao inserir atendimento completo: "+err.getMessage());
+        }
+        return false;
+    }
+
+    public boolean atualizarAtendimentoCompleto(AtendimentoAnimal atendimento){
+        String sql = "WITH atendimento_atualizado AS ("
+            + "UPDATE atendimento SET data = ?, hora = ?, status = ? WHERE id = ? RETURNING id"
+            + ") UPDATE animal_atendimento SET idservico = ?, idanimal = ?, "
+            + "idfuncionario = ?, duracao = ? "
+            + "WHERE idatendimento = (SELECT id FROM atendimento_atualizado)";
+
+        try {
+            statement = this.connection.prepareStatement(sql);
+            statement.setObject(1, atendimento.getData());
+            statement.setObject(2, atendimento.getHora());
+            statement.setString(3, atendimento.getStatus());
+            statement.setInt(4, atendimento.getId());
+            statement.setInt(5, atendimento.getIdServico());
+            statement.setInt(6, atendimento.getIdAnimal());
+            statement.setInt(7, atendimento.getIdFuncionario());
+            statement.setInt(8, atendimento.getDuracao());
+            return statement.executeUpdate() == 1;
+        }
+        catch(SQLException err){
+            System.err.println("Erro ao atualizar atendimento completo: "+err.getMessage());
+        }
+        return false;
+    }
+
+    public boolean removerAtendimentoCompleto(int id){
+        String sql = "WITH vinculo_removido AS ("
+            + "DELETE FROM animal_atendimento WHERE idatendimento = ? RETURNING idatendimento"
+            + ") DELETE FROM atendimento WHERE id = ? "
+            + "AND EXISTS (SELECT 1 FROM vinculo_removido)";
+
+        try {
+            statement = this.connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            statement.setInt(2, id);
+            return statement.executeUpdate() == 1;
+        }
+        catch(SQLException err){
+            System.err.println("Erro ao remover atendimento completo: "+err.getMessage());
+        }
+        return false;
     }
     
     public boolean inserirAtendimentoAnimal(AtendimentoAnimal atendimento){

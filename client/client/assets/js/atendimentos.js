@@ -8,8 +8,16 @@ const closeModalButton = document.getElementById("closeModalButton");
 const cancelModalButton = document.getElementById("cancelModalButton");
 const appointmentForm = document.getElementById("appointmentForm");
 const modalTitle = document.getElementById("modalTitle");
+const clientSelect = document.getElementById("idCliente");
+const animalSelect = document.getElementById("idAnimal");
+const serviceSelect = document.getElementById("idServico");
+const employeeSelect = document.getElementById("idFuncionario");
 
 let appointments = [];
+let clients = [];
+let animals = [];
+let services = [];
+let employees = [];
 
 const appointmentsService = {
     async list() {
@@ -59,18 +67,15 @@ async function apiRequest(path, options = {}) {
 }
 
 function normalizeAppointment(appointment) {
-    const services = Array.isArray(appointment.servicos) ? appointment.servicos : [];
-    const firstService = services[0] || {};
-
     return {
         id: appointment.id ? String(appointment.id) : "",
-        idPet: appointment.idPet || appointment.idpet || appointment.idAnimal || appointment.idanimal || "",
-        idFuncionario: appointment.idFuncionario || appointment.idfuncionario || "",
-        idServico: firstService.id ? String(firstService.id) : appointment.idServico || appointment.idservico || "",
-        data: appointment.data || appointment.dataAtendimento || appointment.data_atendimento || "",
-        hora: appointment.hora || appointment.horaAtendimento || appointment.hora_atendimento || "",
-        status: appointment.status || "AGENDADO",
-        servicos: services
+        idAnimal: appointment.idAnimal ? String(appointment.idAnimal) : "",
+        idServico: appointment.idServico ? String(appointment.idServico) : "",
+        idFuncionario: appointment.idFuncionario ? String(appointment.idFuncionario) : "",
+        duracao: appointment.duracao ?? 0,
+        data: appointment.data || "",
+        hora: appointment.hora || "",
+        status: appointment.status || "AGENDADO"
     };
 }
 
@@ -78,16 +83,47 @@ function buildAppointmentPayload(formData) {
     const appointment = Object.fromEntries(formData.entries());
 
     return {
-        id: appointment.id || null,
+        id: appointment.id ? Number(appointment.id) : null,
         data: appointment.data,
         hora: appointment.hora,
         status: appointment.status,
-        idPet: appointment.idPet,
-        idFuncionario: appointment.idFuncionario ? Number(appointment.idFuncionario) : null,
-        servicos: appointment.idServico
-            ? [{ id: Number(appointment.idServico) }]
-            : []
+        idAnimal: Number(appointment.idAnimal),
+        idServico: Number(appointment.idServico),
+        idFuncionario: Number(appointment.idFuncionario),
+        duracao: Number(appointment.duracao)
     };
+}
+
+function normalizeRecords(records) {
+    return Array.isArray(records) ? records.map((record) => ({
+        ...record,
+        id: record.id ? String(record.id) : "",
+        idCliente: record.idCliente ? String(record.idCliente) : ""
+    })) : [];
+}
+
+function setSelectOptions(select, records, placeholder, selectedId = "") {
+    select.innerHTML = `
+        <option value="">${placeholder}</option>
+        ${records.map((record) => `
+            <option value="${record.id}">${record.nome}</option>
+        `).join("")}
+    `;
+    select.value = selectedId;
+}
+
+function populateAnimalOptions(clientId, selectedId = "") {
+    const filteredAnimals = animals.filter((animal) => animal.idCliente === clientId);
+    const placeholder = filteredAnimals.length
+        ? "Selecione o animal"
+        : "Nenhum animal cadastrado";
+
+    setSelectOptions(animalSelect, filteredAnimals, placeholder, selectedId);
+    animalSelect.disabled = !clientId || !filteredAnimals.length;
+}
+
+function findById(records, id) {
+    return records.find((record) => record.id === String(id));
 }
 
 function formatDate(value) {
@@ -100,11 +136,11 @@ function formatDate(value) {
 }
 
 function formatTime(value) {
-    if (!value) {
-        return "";
-    }
+    return value ? value.slice(0, 5) : "";
+}
 
-    return value.slice(0, 5);
+function normalizeStatus(status) {
+    return String(status || "").trim().toUpperCase();
 }
 
 function getStatusClass(status) {
@@ -121,10 +157,6 @@ function getStatusClass(status) {
     return "";
 }
 
-function normalizeStatus(status) {
-    return String(status || "").trim().toUpperCase();
-}
-
 function setFeedback(message, type = "") {
     appointmentFeedback.textContent = message;
     appointmentFeedback.dataset.type = type;
@@ -133,7 +165,7 @@ function setFeedback(message, type = "") {
 function renderLoading() {
     appointmentsTableBody.innerHTML = `
         <tr>
-            <td class="empty-row" colspan="7">Carregando atendimentos...</td>
+            <td class="empty-row" colspan="9">Carregando atendimentos...</td>
         </tr>
     `;
 }
@@ -142,46 +174,61 @@ function renderAppointments() {
     if (!appointments.length) {
         appointmentsTableBody.innerHTML = `
             <tr>
-                <td class="empty-row" colspan="7">Nenhum atendimento encontrado.</td>
+                <td class="empty-row" colspan="9">Nenhum atendimento encontrado.</td>
             </tr>
         `;
         return;
     }
 
-    appointmentsTableBody.innerHTML = appointments.map((appointment) => `
-        <tr>
-            <td>${appointment.idPet || "-"}</td>
-            <td>${appointment.idServico || "-"}</td>
-            <td>${appointment.idFuncionario || "-"}</td>
-            <td>${formatDate(appointment.data)}</td>
-            <td>${formatTime(appointment.hora)}</td>
-            <td>
-                <span class="status-badge ${getStatusClass(appointment.status)}">
-                    ${appointment.status}
-                </span>
-            </td>
-            <td>
-                <div class="table-actions">
-                    <button class="small-button" data-action="edit" data-id="${appointment.id}" type="button">
-                        Editar
-                    </button>
-                    <button class="small-button" data-action="delete" data-id="${appointment.id}" type="button">
-                        Excluir
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join("");
+    appointmentsTableBody.innerHTML = appointments.map((appointment) => {
+        const animal = findById(animals, appointment.idAnimal);
+        const client = animal ? findById(clients, animal.idCliente) : null;
+        const service = findById(services, appointment.idServico);
+        const employee = findById(employees, appointment.idFuncionario);
+
+        return `
+            <tr>
+                <td>${client ? client.nome : "-"}</td>
+                <td>${animal ? animal.nome : "-"}</td>
+                <td>${service ? service.nome : "-"}</td>
+                <td>${employee ? employee.nome : "-"}</td>
+                <td>${appointment.duracao} min</td>
+                <td>${formatDate(appointment.data)}</td>
+                <td>${formatTime(appointment.hora)}</td>
+                <td>
+                    <span class="status-badge ${getStatusClass(appointment.status)}">
+                        ${appointment.status}
+                    </span>
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <button class="small-button" data-action="edit" data-id="${appointment.id}" type="button">
+                            Editar
+                        </button>
+                        <button class="small-button" data-action="delete" data-id="${appointment.id}" type="button">
+                            Excluir
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
 }
 
 function openModal(appointment = null) {
     modalTitle.textContent = appointment ? "Editar atendimento" : "Novo atendimento";
     appointmentForm.reset();
 
+    const animal = appointment ? findById(animals, appointment.idAnimal) : null;
+    const clientId = animal ? animal.idCliente : "";
+
+    setSelectOptions(clientSelect, clients, "Selecione o cliente", clientId);
+    populateAnimalOptions(clientId, appointment ? appointment.idAnimal : "");
+    setSelectOptions(serviceSelect, services, "Selecione o servico", appointment ? appointment.idServico : "");
+    setSelectOptions(employeeSelect, employees, "Selecione o funcionario", appointment ? appointment.idFuncionario : "");
+
     document.getElementById("appointmentId").value = appointment ? appointment.id : "";
-    document.getElementById("idPet").value = appointment ? appointment.idPet : "";
-    document.getElementById("idServico").value = appointment ? appointment.idServico : "";
-    document.getElementById("idFuncionario").value = appointment ? appointment.idFuncionario : "";
+    document.getElementById("duracao").value = appointment ? appointment.duracao : "";
     document.getElementById("data").value = appointment ? appointment.data : "";
     document.getElementById("hora").value = appointment ? formatTime(appointment.hora) : "";
     document.getElementById("status").value = appointment ? normalizeStatus(appointment.status) : "AGENDADO";
@@ -195,20 +242,34 @@ function closeModal() {
 }
 
 async function loadAppointments() {
+    const records = await appointmentsService.list();
+    appointments = Array.isArray(records) ? records.map(normalizeAppointment) : [];
+    renderAppointments();
+}
+
+async function loadPageData() {
     renderLoading();
     setFeedback("");
 
     try {
-        const records = await appointmentsService.list();
-        appointments = Array.isArray(records) ? records.map(normalizeAppointment) : [];
+        const clientRecords = await apiRequest("/clientes/listar");
+        const animalRecords = await apiRequest("/animais/listar");
+        const serviceRecords = await apiRequest("/servicos/listar");
+        const employeeRecords = await apiRequest("/funcionarios/listar");
+        const appointmentRecords = await appointmentsService.list();
+
+        clients = normalizeRecords(clientRecords);
+        animals = normalizeRecords(animalRecords);
+        services = normalizeRecords(serviceRecords);
+        employees = normalizeRecords(employeeRecords);
+        appointments = Array.isArray(appointmentRecords)
+            ? appointmentRecords.map(normalizeAppointment)
+            : [];
         renderAppointments();
     } catch (error) {
         appointments = [];
         renderAppointments();
-        setFeedback(
-            "Nao foi possivel carregar os atendimentos. Verifique se a API possui a rota /atendimentos/listar.",
-            "error"
-        );
+        setFeedback("Nao foi possivel carregar os dados do atendimento.", "error");
     }
 }
 
@@ -254,6 +315,9 @@ async function handleTableClick(event) {
     }
 }
 
+clientSelect.addEventListener("change", () => {
+    populateAnimalOptions(clientSelect.value);
+});
 openModalButton.addEventListener("click", () => openModal());
 closeModalButton.addEventListener("click", closeModal);
 cancelModalButton.addEventListener("click", closeModal);
@@ -266,4 +330,4 @@ modalBackdrop.addEventListener("click", (event) => {
     }
 });
 
-loadAppointments();
+loadPageData();

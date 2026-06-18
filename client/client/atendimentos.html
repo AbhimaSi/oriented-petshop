@@ -55,9 +55,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID Pet</th>
-                            <th>ID Servico</th>
-                            <th>ID Funcionario</th>
+                            <th>Cliente</th>
+                            <th>Animal</th>
+                            <th>Servico</th>
+                            <th>Funcionario</th>
+                            <th>Duracao</th>
                             <th>Data</th>
                             <th>Hora</th>
                             <th>Status</th>
@@ -87,18 +89,28 @@
                 <input type="hidden" id="appointmentId" name="id">
 
                 <div class="form-group">
-                    <label for="idPet">ID pet</label>
-                    <input id="idPet" name="idPet" type="number" min="1" required>
+                    <label for="idCliente">Cliente</label>
+                    <select id="idCliente" name="idCliente" required></select>
                 </div>
 
                 <div class="form-group">
-                    <label for="idServico">ID servico</label>
-                    <input id="idServico" name="idServico" type="number" min="1" required>
+                    <label for="idAnimal">Animal</label>
+                    <select id="idAnimal" name="idAnimal" required disabled></select>
                 </div>
 
                 <div class="form-group">
-                    <label for="idFuncionario">ID funcionario</label>
-                    <input id="idFuncionario" name="idFuncionario" type="number" min="1" required>
+                    <label for="idServico">Servico</label>
+                    <select id="idServico" name="idServico" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="idFuncionario">Funcionario</label>
+                    <select id="idFuncionario" name="idFuncionario" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="duracao">Duracao (minutos)</label>
+                    <input id="duracao" name="duracao" type="number" min="0" required>
                 </div>
 
                 <div class="form-group">
